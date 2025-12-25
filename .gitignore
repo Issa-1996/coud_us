@@ -1,0 +1,49 @@
+# Fichiers de configuration sensibles
+config.php
+.env
+.env.local
+.env.production
+.env.development
+
+# Logs et fichiers temporaires
+*.log
+logs/
+tmp/
+temp/
+
+# Fichiers de base de données
+*.sql
+*.sqlite
+*.db
+
+# Répertoires de dépendances (si vous utilisez Composer plus tard)
+vendor/
+node_modules/
+
+# Fichiers IDE et éditeur
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Sauvegardes et exports
+backup/
+exports/
+*.bak
+
+# Fichiers de session PHP (si utilisés)
+session/
+
+# Certificats et clés
+*.pem
+*.key
+*.crt
+
+# Données sensibles
+data/etudiants.json
+data/*-fonctions.php

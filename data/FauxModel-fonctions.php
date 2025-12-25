@@ -5,7 +5,9 @@
  */
 
 // Variables globales pour les données en mémoire
-$GLOBALS['faux_pv_data'] = [];
+require_once __DIR__ . '/../config.php';
+
+//$GLOBALS['faux_pv_data'] = [];
 
 /**
  * Générer des données fictives pour le développement (sans sauvegarder)
