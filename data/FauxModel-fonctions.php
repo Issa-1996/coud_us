@@ -49,34 +49,73 @@ function generateFakeFauxData($count = 30) {
  * Obtenir tous les PV avec pagination et filtres
  */
 function getAllFauxPV($page = 1, $itemsPerPage = 10, $search = '', $status = '') {
-    $filtered = $GLOBALS['faux_pv_data'];
+    $conn = connectDB();
     
-    // Filtre par recherche
+    // Construction de la requête avec filtres
+    $where = [];
+    $params = [];
+    $types = "";
+    
     if (!empty($search)) {
-        $search = strtolower($search);
-        $filtered = array_filter($filtered, function($pv) use ($search) {
-            return strpos(strtolower($pv['nom']), $search) !== false ||
-                   strpos(strtolower($pv['prenoms']), $search) !== false ||
-                   strpos(strtolower($pv['carteEtudiant']), $search) !== false ||
-                   strpos($pv['telephone7'], $search) !== false;
-        });
+        $where[] = "(nom LIKE ? OR prenoms LIKE ? OR carteEtudiant LIKE ? OR telephone7 LIKE ?)";
+        $search_param = "%$search%";
+        $params[] = $search_param;
+        $params[] = $search_param;
+        $params[] = $search_param;
+        $params[] = $search_param;
+        $types .= "ssss";
     }
     
-    // Filtre par statut
     if (!empty($status)) {
-        $filtered = array_filter($filtered, function($pv) use ($status) {
-            return $pv['statut'] === $status;
-        });
+        $where[] = "statut = ?";
+        $params[] = $status;
+        $types .= "s";
     }
     
-    // Pagination
-    $total = count($filtered);
+    $where_clause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+    
+    // Compter le total
+    $count_sql = "SELECT COUNT(*) as total FROM faux_pv $where_clause";
+    $count_stmt = mysqli_prepare($conn, $count_sql);
+    if (!empty($params)) {
+        mysqli_stmt_bind_param($count_stmt, $types, ...$params);
+    }
+    if (!mysqli_stmt_execute($count_stmt)) {
+        mysqli_stmt_close($count_stmt);
+        closeDB($conn);
+        return ['data' => [], 'total' => 0, 'totalPages' => 0, 'currentPage' => 1, 'itemsPerPage' => $itemsPerPage];
+    }
+    $count_result = mysqli_stmt_get_result($count_stmt);
+    $total = mysqli_fetch_assoc($count_result)['total'];
+    mysqli_stmt_close($count_stmt);
+    
+    // Calculer la pagination
     $totalPages = ceil($total / $itemsPerPage);
     $offset = ($page - 1) * $itemsPerPage;
-    $paginated = array_slice($filtered, $offset, $itemsPerPage);
+    
+    // Récupérer les données
+    $sql = "SELECT * FROM faux_pv $where_clause ORDER BY createdAt DESC LIMIT ? OFFSET ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    $final_types = $types . "ii";
+    $final_params = array_merge($params, [$itemsPerPage, $offset]);
+    mysqli_stmt_bind_param($stmt, $final_types, ...$final_params);
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        closeDB($conn);
+        return ['data' => [], 'total' => 0, 'totalPages' => 0, 'currentPage' => 1, 'itemsPerPage' => $itemsPerPage];
+    }
+    $result = mysqli_stmt_get_result($stmt);
+    
+    $data = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+    
+    mysqli_stmt_close($stmt);
+    closeDB($conn);
     
     return [
-        'data' => $paginated,
+        'data' => $data,
         'total' => $total,
         'totalPages' => $totalPages,
         'currentPage' => $page,
@@ -84,132 +123,204 @@ function getAllFauxPV($page = 1, $itemsPerPage = 10, $search = '', $status = '')
     ];
 }
 
+
 /**
  * Obtenir un PV par son ID
  */
 function getFauxPVById($id) {
-    foreach ($GLOBALS['faux_pv_data'] as $pv) {
-        if ($pv['id'] == $id) {
-            return $pv;
-        }
+    $conn = connectDB();
+    
+    $sql = "SELECT * FROM faux_pv WHERE id = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        closeDB($conn);
+        return null;
     }
-    return null;
+    $result = mysqli_stmt_get_result($stmt);
+
+    $pv = mysqli_fetch_assoc($result);
+
+    mysqli_stmt_close($stmt);
+    closeDB($conn);
+
+    return $pv;
 }
+
 
 /**
  * Créer un nouveau PV
  */
 function createFauxPV($data) {
-    $pv = [
-        'id' => time(),
-        'carteEtudiant' => $data['carteEtudiant'] ?? '',
-        'nom' => $data['nom'] ?? '',
-        'prenoms' => $data['prenoms'] ?? '',
-        'campus' => $data['campus'] ?? '',
-        'telephone7' => $data['telephone7'] ?? '',
-        'telephoneResistant' => $data['telephoneResistant'] ?? '',
-        'observations' => $data['observations'] ?? '',
-        'statut' => $data['statut'] ?? 'en_cours',
-        'date' => $data['date'] ?? date('Y-m-d'),
-        'createdAt' => date('Y-m-d H:i:s'),
-        'updatedAt' => date('Y-m-d H:i:s')
-    ];
+    $conn = connectDB();
     
-    $GLOBALS['faux_pv_data'][] = $pv;
-    return $pv;
+    $sql = "INSERT INTO faux_pv (carteEtudiant, nom, prenoms, campus, telephone7, telephoneResistant, identiteFaux, typeDocument, chargeEnquete, agentAction, observations, statut, date) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "sssssssssssss", 
+        $data['carteEtudiant'], 
+        $data['nom'], 
+        $data['prenoms'], 
+        $data['campus'], 
+        $data['telephone7'], 
+        $data['telephoneResistant'], 
+        $data['identiteFaux'], 
+        $data['typeDocument'], 
+        $data['chargeEnquete'], 
+        $data['agentAction'], 
+        $data['observations'], 
+        $data['statut'], 
+        $data['date']
+    );
+    
+    $result = mysqli_stmt_execute($stmt);
+    if (!$result) {
+        mysqli_stmt_close($stmt);
+        closeDB($conn);
+        return false;
+    }
+    $new_id = mysqli_insert_id($conn);
+
+    mysqli_stmt_close($stmt);
+    closeDB($conn);
+
+    return $result ? $new_id : false;
 }
+
 
 /**
  * Mettre à jour un PV
  */
 function updateFauxPV($id, $data) {
-    foreach ($GLOBALS['faux_pv_data'] as $key => $pv) {
-        if ($pv['id'] == $id) {
-            $GLOBALS['faux_pv_data'][$key] = array_merge($pv, [
-                'carteEtudiant' => $data['carteEtudiant'] ?? $pv['carteEtudiant'],
-                'nom' => $data['nom'] ?? $pv['nom'],
-                'prenoms' => $data['prenoms'] ?? $pv['prenoms'],
-                'campus' => $data['campus'] ?? $pv['campus'],
-                'telephone7' => $data['telephone7'] ?? $pv['telephone7'],
-                'telephoneResistant' => $data['telephoneResistant'] ?? $pv['telephoneResistant'],
-                'observations' => $data['observations'] ?? $pv['observations'],
-                'statut' => $data['statut'] ?? $pv['statut'],
-                'date' => $data['date'] ?? $pv['date'],
-                'updatedAt' => date('Y-m-d H:i:s')
-            ]);
-            return $GLOBALS['faux_pv_data'][$key];
-        }
+    $conn = connectDB();
+    
+    $sql = "UPDATE faux_pv SET 
+            carteEtudiant = ?, nom = ?, prenoms = ?, campus = ?, 
+            telephone7 = ?, telephoneResistant = ?, identiteFaux = ?, 
+            typeDocument = ?, chargeEnquete = ?, agentAction = ?, 
+            observations = ?, statut = ?, date = ?, updatedAt = CURRENT_TIMESTAMP 
+            WHERE id = ?";
+    
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "sssssssssssssi", 
+        $data['carteEtudiant'], 
+        $data['nom'], 
+        $data['prenoms'], 
+        $data['campus'], 
+        $data['telephone7'], 
+        $data['telephoneResistant'], 
+        $data['identiteFaux'], 
+        $data['typeDocument'], 
+        $data['chargeEnquete'], 
+        $data['agentAction'], 
+        $data['observations'], 
+        $data['statut'], 
+        $data['date'], 
+        $id
+    );
+    
+    $result = mysqli_stmt_execute($stmt);
+    if (!$result) {
+        mysqli_stmt_close($stmt);
+        closeDB($conn);
+        return false;
     }
-    return false;
+
+    mysqli_stmt_close($stmt);
+    closeDB($conn);
+
+    return $result;
 }
+
 
 /**
  * Supprimer un PV
  */
 function deleteFauxPV($id) {
-    foreach ($GLOBALS['faux_pv_data'] as $key => $pv) {
-        if ($pv['id'] == $id) {
-            unset($GLOBALS['faux_pv_data'][$key]);
-            $GLOBALS['faux_pv_data'] = array_values($GLOBALS['faux_pv_data']); // Réindexer
-            return true;
-        }
-    }
-    return false;
+    $conn = connectDB();
+    
+    $sql = "DELETE FROM faux_pv WHERE id = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    $result = mysqli_stmt_execute($stmt);
+    
+    mysqli_stmt_close($stmt);
+    closeDB($conn);
+    
+    return $result;
 }
 
 /**
  * Obtenir les statistiques
  */
 function getFauxStatistics() {
-    $total = count($GLOBALS['faux_pv_data']);
-    $enCours = count(array_filter($GLOBALS['faux_pv_data'], function($pv) {
-        return $pv['statut'] === 'en_cours';
-    }));
-    $traites = count(array_filter($GLOBALS['faux_pv_data'], function($pv) {
-        return $pv['statut'] === 'traite';
-    }));
-    
-    return [
-        'total' => $total,
-        'enCours' => $enCours,
-        'traites' => $traites
-    ];
+    $conn = connectDB();
+
+    $sql = "SELECT statut, COUNT(*) as count FROM faux_pv GROUP BY statut";
+    $result = mysqli_query($conn, $sql);
+
+    $stats = ['total' => 0, 'enCours' => 0, 'traites' => 0];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $stats['total'] += $row['count'];
+        if ($row['statut'] == 'en_cours') {
+            $stats['enCours'] = $row['count'];
+        } elseif ($row['statut'] == 'traite') {
+            $stats['traites'] = $row['count'];
+        }
+    }
+
+    // Add this month's count
+    $thisMonth = date('Y-m');
+    $sql_this = "SELECT COUNT(*) as count FROM faux_pv WHERE DATE_FORMAT(date, '%Y-%m') = ?";
+    $stmt = mysqli_prepare($conn, $sql_this);
+    mysqli_stmt_bind_param($stmt, "s", $thisMonth);
+    mysqli_stmt_execute($stmt);
+    $result_this = mysqli_stmt_get_result($stmt);
+    $stats['thisMonth'] = mysqli_fetch_assoc($result_this)['count'];
+    mysqli_stmt_close($stmt);
+
+    closeDB($conn);
+    return $stats;
 }
+
 
 /**
  * Valider les données d'un PV
  */
 function validateFauxPV($data) {
     $errors = [];
-    
+
     if (empty($data['carteEtudiant'])) {
         $errors[] = 'Le numéro de carte étudiant est requis';
     }
-    
+
     if (empty($data['nom'])) {
         $errors[] = 'Le nom est requis';
     }
-    
+
     if (empty($data['prenoms'])) {
         $errors[] = 'Le prénom est requis';
     }
-    
+
     if (empty($data['campus'])) {
         $errors[] = 'Le campus/résidence est requis';
     }
-    
-    if (empty($data['telephone7'])) {
-        $errors[] = 'Le téléphone (N° 7...) est requis';
-    } elseif (!preg_match('/^7[0-9]{7}$/', $data['telephone7'])) {
-        $errors[] = 'Le format du téléphone (N° 7...) est invalide';
+
+    // Rendre le téléphone 7 optionnel mais valider le format si fourni
+    if (!empty($data['telephone7']) && !preg_match('/^7[0-9]{8}$/', $data['telephone7'])) {
+        $errors[] = 'Le format du téléphone (N° 7...) est invalide (doit être au format 7XXXXXXXX)';
     }
-    
-    if (!empty($data['telephoneResistant']) && !preg_match('/^[0-9]{8}$/', $data['telephoneResistant'])) {
+
+    if (!empty($data['telephoneResistant']) && !preg_match('/^7[0-9]{8}$/', $data['telephoneResistant'])) {
         $errors[] = 'Le format du téléphone résistant est invalide';
     }
-    
+
     return $errors;
 }
+
 
 /**
  * Exporter les PV en CSV
@@ -259,4 +370,67 @@ function exportFauxToCSV($search = '', $status = '') {
     fclose($output);
     exit;
 }
+
+/**
+ * Peupler la base de données avec des données fictives
+ */
+function populateFakeData($count = 30) {
+    $fakeData = generateFakeFauxData($count);
+    $inserted = 0;
+
+    foreach ($fakeData as $data) {
+        if (createFauxPV($data)) {
+            $inserted++;
+        } else {
+            // Optionnel : logger l'erreur ou continuer
+            error_log("Erreur lors de l'insertion des données fictives");
+        }
+    }
+
+    return $inserted;
+}
+
+/**
+ * Obtenir le top 5 des faux par campus (fréquence)
+ */
+function getTop5Faux() {
+    $conn = connectDB();
+
+    $sql = "SELECT campus, COUNT(*) as count FROM faux_pv GROUP BY campus ORDER BY count DESC LIMIT 5";
+    $result = mysqli_query($conn, $sql);
+
+    $top5 = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $top5[] = $row;
+    }
+
+    closeDB($conn);
+    return $top5;
+}
+
+/**
+ * Obtenir les activités récentes (derniers PVs)
+ */
+function getRecentFaux($limit = 5) {
+    $conn = connectDB();
+
+    $sql = "SELECT id, nom, prenoms, statut, date, createdAt FROM faux_pv ORDER BY createdAt DESC LIMIT ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $limit);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    $recent = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $recent[] = $row;
+    }
+
+    mysqli_stmt_close($stmt);
+    closeDB($conn);
+    return $recent;
+}
+
 ?>
+
+
+

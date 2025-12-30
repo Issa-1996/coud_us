@@ -1,3 +1,11 @@
+
+<?php
+require_once __DIR__ . '/models/FauxModel.php';
+require_once __DIR__ . '/config.php';
+
+$bannerText = "Système de Gestion des Procès-Verbaux - USCOUD";
+include __DIR__ . '/includes/head.php';
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -12,8 +20,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
     <style>
         :root {
@@ -382,10 +389,13 @@
 </head>
 
 <body>
-    <?php
-    $bannerText = "Système de Gestion des Procès-Verbaux - USCOUD";
-    include __DIR__ . '/includes/head.php';
-    ?>
+<?php
+require_once __DIR__ . '/models/FauxModel.php';
+require_once __DIR__ . '/config.php';
+
+$bannerText = "Système de Gestion des Procès-Verbaux - USCOUD";
+include __DIR__ . '/includes/head.php';
+?>
 
     <!-- Hero Section -->
     <div class="hero-section">
@@ -675,7 +685,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Actions Rapides -->
         <div class="row mt-4">
             <div class="col-md-12">
@@ -807,56 +816,63 @@
             if (el) el.textContent = value;
         };
 
-        // Fonctions de génération de données fictives
-        function generateFakePvFaux() {
-            const noms = ['Diop', 'Ndiaye', 'Fall', 'Sarr', 'Sow'];
-            const prenoms = ['Moussa', 'Fatou', 'Aminata', 'Abdou', 'Cheikh'];
-            const statuts = ['en_cours', 'traite'];
-            
-            return Array.from({length: 5}, (_, i) => {
-                const date = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
-                return {
-                    id: Date.now() + i,
-                    nom: noms[Math.floor(Math.random() * noms.length)],
-                    prenom: prenoms[Math.floor(Math.random() * prenoms.length)],
-                    statut: statuts[Math.floor(Math.random() * statuts.length)],
-                    date: date.toISOString().split('T')[0]
-                };
-            });
+        // Fonctions pour charger les données réelles
+        async function loadRealStats() {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'get_list');
+                formData.append('page', '1');
+                formData.append('itemsPerPage', '1'); // On ne récupère qu'une page pour les stats
+
+                const response = await fetch('pages/faux/faux.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success && data.statistics) {
+                    const stats = data.statistics;
+                    setText('totalGlobal', stats.total || 0);
+                    setText('enCoursGlobal', stats.enCours || 0);
+                    setText('traitesGlobal', stats.traites || 0);
+                    setText('ceMois', stats.thisMonth || 0);
+                    setText('fauxTotal', stats.total || 0);
+                    setText('fauxEnCours2', stats.enCours || 0);
+                    setText('fauxTraites2', stats.traites || 0);
+                }
+            } catch (error) {
+                // console.error('Erreur lors du chargement des statistiques:', error);
+            }
         }
 
-        function generateFakePvConstat() {
-            const lieux = ['Campus Social ESP', 'Campus Social UCAD', 'Résidence Claudel', 'Cité Mixte', 'FASTEF'];
-            const natures = ['Bagarre', 'Vol', 'Accident', 'Incendie', 'Vandalisme'];
-            const statuts = ['en_cours', 'traite'];
-            
-            return Array.from({length: 5}, (_, i) => {
-                const date = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
-                return {
-                    id: Date.now() + 100 + i,
-                    lieuIncident: lieux[Math.floor(Math.random() * lieux.length)],
-                    natureIncident: natures[Math.floor(Math.random() * natures.length)],
-                    statut: statuts[Math.floor(Math.random() * statuts.length)],
-                    dateIncident: date.toISOString().split('T')[0]
-                };
-            });
-        }
+        async function loadTop5Faux() {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'get_top5');
 
-        function generateFakePvDenonciation() {
-            const noms = ['Diouf', 'Mbaye', 'Sy', 'Kane', 'Diallo'];
-            const prenoms = ['Mariama', 'Ibrahima', 'Ousmane', 'Khady', 'Serigne'];
-            const statuts = ['en_cours', 'traite'];
-            
-            return Array.from({length: 5}, (_, i) => {
-                const date = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
-                return {
-                    id: Date.now() + 200 + i,
-                    soussigne: noms[Math.floor(Math.random() * noms.length)],
-                    soussignePrenom: prenoms[Math.floor(Math.random() * prenoms.length)],
-                    statut: statuts[Math.floor(Math.random() * statuts.length)],
-                    datePV: date.toISOString().split('T')[0]
-                };
-            });
+                const response = await fetch('pages/faux/faux.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success && data.data) {
+                    const listElement = document.getElementById('listFaux');
+                    listElement.innerHTML = '';
+
+                    data.data.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        li.innerHTML = `
+                            <span><i class="fas fa-map-marker-alt me-2 text-primary"></i>${item.campus}</span>
+                            <span class="badge bg-primary rounded-pill">${item.count}</span>
+                        `;
+                        listElement.appendChild(li);
+                    });
+                }
+            } catch (error) {
+                // console.error('Erreur lors du chargement du top 5:', error);
+            }
         }
 
         // Fonction pour créer les graphiques
@@ -1048,46 +1064,139 @@
             return date.toLocaleDateString('fr-FR');
         }
 
+
+
+        // Fonction pour charger les statistiques réelles du module faux et mettre à jour le graphique
+        async function loadRealPVCounts() {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'get_list');
+                formData.append('page', '1');
+                formData.append('itemsPerPage', '1'); // On ne récupère qu'une page pour les stats
+
+                const response = await fetch('pages/faux/faux.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success && data.statistics) {
+                    const stats = data.statistics;
+                    const fauxCount = stats.total || 0;
+
+                    // Calculer la hauteur proportionnelle (max 120px pour 100 PV)
+                    const maxHeight = 120;
+                    const maxPV = 100;
+                    const height = Math.min((fauxCount / maxPV) * maxHeight, maxHeight);
+
+                    // Mettre à jour la barre "Faux" dans le graphique
+                    const fauxBar = document.querySelector('.chart-container .d-flex.justify-content-around.align-items-end .text-center:nth-child(1) div');
+                    const fauxLabel = document.querySelector('.chart-container .d-flex.justify-content-around.align-items-end .text-center:nth-child(1) strong');
+
+                    if (fauxBar && fauxLabel) {
+                        fauxBar.style.height = height + 'px';
+                        fauxLabel.textContent = fauxCount;
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des statistiques faux:', error);
+            }
+        }
+
+        // Fonction pour charger les activités récentes (seulement module faux)
+        async function loadRecentActivities() {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'get_recent');
+
+                const response = await fetch('pages/faux/faux.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success && data.data) {
+                    const activitiesContainer = document.getElementById('recentActivities');
+                    activitiesContainer.innerHTML = '';
+
+                    data.data.forEach(item => {
+                        const activityItem = document.createElement('div');
+                        activityItem.className = 'activity-item';
+                        activityItem.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="badge bg-primary me-2">
+                                        <i class="fas fa-id-card me-1"></i>Faux et Usage de Faux
+                                    </span>
+                                    <strong>${item.nom} ${item.prenoms}</strong>
+                                    <span class="badge ${item.statut === 'traite' ? 'bg-success' : 'bg-warning'} ms-2">${item.statut === 'traite' ? 'Traité' : 'En cours'}</span>
+                                </div>
+                                <span class="activity-time">${formatDate(item.createdAt)}</span>
+                            </div>
+                        `;
+                        activitiesContainer.appendChild(activityItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des activités récentes:', error);
+            }
+        }
+
         // Initialisation principale
         document.addEventListener('DOMContentLoaded', function() {
-            // Générer des données fictives si nécessaire
-            if (!localStorage.getItem('pvMockSeeded')) {
-                localStorage.setItem('pvData', JSON.stringify(generateFakePvFaux()));
-                localStorage.setItem('pvConstat', JSON.stringify(generateFakePvConstat()));
-                localStorage.setItem('pvDenonciation', JSON.stringify(generateFakePvDenonciation()));
-                localStorage.setItem('pvMockSeeded', 'true');
-            }
-
-            // Récupérer les données
-            const pvFaux = JSON.parse(localStorage.getItem('pvData')) || [];
+            // Charger les données fake pour Constat et Dénonciation depuis localStorage
             const pvConstat = JSON.parse(localStorage.getItem('pvConstat')) || [];
             const pvDenonciation = JSON.parse(localStorage.getItem('pvDenonciation')) || [];
 
-            // Calculer les statistiques globales
-            const totalGlobal = pvFaux.length + pvConstat.length + pvDenonciation.length;
-            const enCoursGlobal = pvFaux.filter(p => p.statut === 'en_cours').length +
-                                pvConstat.filter(p => p.statut === 'en_cours').length +
-                                pvDenonciation.filter(p => p.statut === 'en_cours').length;
-            const traitesGlobal = pvFaux.filter(p => p.statut === 'traite').length +
-                                 pvConstat.filter(p => p.statut === 'traite').length +
-                                 pvDenonciation.filter(p => p.statut === 'traite').length;
+            // Calculer les statistiques globales (Faux réel + autres fake)
+            const totalConstat = pvConstat.length;
+            const enCoursConstat = pvConstat.filter(p => p.statut === 'en_cours').length;
+            const traitesConstat = pvConstat.filter(p => p.statut === 'traite').length;
 
-            // Mettre à jour l'interface
-            setText('totalGlobal', totalGlobal);
-            setText('enCoursGlobal', enCoursGlobal);
-            setText('traitesGlobal', traitesGlobal);
-            setText('fauxTotal', pvFaux.length);
-            setText('fauxEnCours2', pvFaux.filter(p => p.statut === 'en_cours').length);
-            setText('fauxTraites2', pvFaux.filter(p => p.statut === 'traite').length);
-            setText('constatTotal', pvConstat.length);
-            setText('constatEnCours2', pvConstat.filter(p => p.statut === 'en_cours').length);
-            setText('constatTraites2', pvConstat.filter(p => p.statut === 'traite').length);
-            setText('denonciationTotal', pvDenonciation.length);
-            setText('denonciationEnCours2', pvDenonciation.filter(p => p.statut === 'en_cours').length);
-            setText('denonciationTraites2', pvDenonciation.filter(p => p.statut === 'traite').length);
+            const totalDenonciation = pvDenonciation.length;
+            const enCoursDenonciation = pvDenonciation.filter(p => p.statut === 'en_cours').length;
+            const traitesDenonciation = pvDenonciation.filter(p => p.statut === 'traite').length;
 
-            // Créer les graphiques
-            createCharts(pvFaux, pvConstat, pvDenonciation);
+            // Mettre à jour les stats des modules fake
+            setText('constatTotal', totalConstat);
+            setText('constatEnCours2', enCoursConstat);
+            setText('constatTraites2', traitesConstat);
+
+            setText('denonciationTotal', totalDenonciation);
+            setText('denonciationEnCours2', enCoursDenonciation);
+            setText('denonciationTraites2', traitesDenonciation);
+
+            // Charger les données réelles pour Faux
+            loadRealStats();
+            loadRealPVCounts();
+            loadTop5Faux();
+            loadRecentActivities();
+
+            // Créer les graphiques avec données mixtes (après un court délai pour laisser le temps aux données réelles de se charger)
+            setTimeout(() => {
+                // Récupérer les stats Faux réelles depuis l'interface
+                const fauxTotal = parseInt(document.getElementById('fauxTotal').textContent) || 0;
+                const fauxEnCours = parseInt(document.getElementById('fauxEnCours2').textContent) || 0;
+                const fauxTraites = parseInt(document.getElementById('fauxTraites2').textContent) || 0;
+
+                // Calculer les stats globales
+                const totalGlobal = fauxTotal + totalConstat + totalDenonciation;
+                const enCoursGlobal = fauxEnCours + enCoursConstat + enCoursDenonciation;
+                const traitesGlobal = fauxTraites + traitesConstat + traitesDenonciation;
+
+                // Mettre à jour l'interface globale
+                setText('totalGlobal', totalGlobal);
+                setText('enCoursGlobal', enCoursGlobal);
+                setText('traitesGlobal', traitesGlobal);
+                setText('ceMois', Math.floor(totalGlobal / 12)); // Approximation
+
+                // Créer les graphiques avec données mixtes
+                createCharts(
+                    Array(fauxTotal).fill({}), // Données fictives pour les graphiques
+                    pvConstat,
+                    pvDenonciation
+                );
+            }, 500);
         });
     </script>
 

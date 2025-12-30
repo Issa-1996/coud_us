@@ -5,41 +5,54 @@ let currentDetailId = null;
 let currentPage = 1;
 let itemsPerPage = 10;
 let filteredData = [];
+let searchTimeout = null;
 
 // Sauvegarder un nouveau PV
 function savePV() {
-    const pv = {
-        id: Date.now(),
-        carteEtudiant: document.getElementById('addCarteEtudiant').value,
-        nom: document.getElementById('addNom').value,
-        prenom: document.getElementById('addPrenom').value,
-        campus: document.getElementById('addCampus').value,
-        telephone7: document.getElementById('addTelephone7').value,
-        telephoneResistant: document.getElementById('addTelephoneResistant').value,
-        identiteFaux: document.getElementById('addIdentiteFaux').value,
-        typeDocument: document.getElementById('addTypeDocument').value,
-        chargeEnquete: document.getElementById('addChargeEnquete').value,
-        agentAction: document.getElementById('addAgentAction').value,
-        observations: document.getElementById('addObservations').value,
-        statut: document.getElementById('addStatut').value,
-        date: document.getElementById('addDate').value
-    };
+    const formData = new FormData();
+    formData.append('action', 'create');
+    formData.append('carteEtudiant', document.getElementById('addCarteEtudiant').value);
+    formData.append('nom', document.getElementById('addNom').value);
+    formData.append('prenoms', document.getElementById('addPrenom').value);
+    formData.append('campus', document.getElementById('addCampus').value);
+    formData.append('telephone7', document.getElementById('addTelephone7').value);
+    formData.append('telephoneResistant', document.getElementById('addTelephoneResistant').value);
+    formData.append('identiteFaux', document.getElementById('addIdentiteFaux').value);
+    formData.append('typeDocument', document.getElementById('addTypeDocument').value);
+    formData.append('chargeEnquete', document.getElementById('addChargeEnquete').value);
+    formData.append('agentAction', document.getElementById('addAgentAction').value);
+    formData.append('observations', document.getElementById('addObservations').value);
+    formData.append('statut', document.getElementById('addStatut').value);
+    formData.append('date', document.getElementById('addDate').value);
 
-    pvData.push(pv);
-    // Pas de localStorage - travail en mémoire uniquement
-    
-    // Fermer le modal et réinitialiser le formulaire
-    bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
-    document.getElementById('addForm').reset();
-    
-    // Recharger les données
-    filteredData = [...pvData];
-    currentPage = 1;
-    loadPVData();
-    updateStatistics();
-    
-    // Message de succès
-    showAlert('Procès-verbal ajouté avec succès!', 'success');
+    fetch('faux.php', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Fermer le modal et réinitialiser le formulaire
+            bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+            document.getElementById('addForm').reset();
+
+            // Recharger les données depuis le serveur
+            refreshData();
+
+            // Message de succès
+            showAlert('Procès-verbal ajouté avec succès!', 'success');
+        } else {
+            // Afficher les erreurs
+            showErrors(data.errors);
+        }
+    })
+    .catch(error => {
+        // console.error('Erreur:', error);
+        showAlert('Erreur lors de l\'ajout du PV', 'danger');
+    });
 }
 
 // Charger les données dans le tableau avec pagination
@@ -86,8 +99,8 @@ function loadPVData() {
                 <td>${pv.nom} ${pv.prenoms}</td>
                 <td>${pv.campus}</td>
                 <td>${pv.telephone7}</td>
-                <td>${pv.identiteFaux}</td>
-                <td>${typeDocLabel}</td>
+                <td>${pv.chargeEnquete}</td>
+                <td>${pv.agentAction}</td>
                 <td>${statutLabel}</td>
                 <td>${pv.date}</td>
                 <td>
@@ -157,54 +170,83 @@ function changeItemsPerPage() {
     loadPVData();
 }
 
-// Filtrer les données
+// Filtrer les données avec debounce pour la recherche en temps réel
 function filterTable() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const statusFilter = document.getElementById('filterStatus').value;
-    
-    filteredData = pvData.filter(pv => {
-        const matchesSearch = 
-            pv.carteEtudiant.toLowerCase().includes(searchTerm) ||
-            pv.nom.toLowerCase().includes(searchTerm) ||
-            pv.prenoms.toLowerCase().includes(searchTerm) ||
-            pv.campus.toLowerCase().includes(searchTerm) ||
-            pv.identiteFaux.toLowerCase().includes(searchTerm);
-        
-        const matchesStatus = !statusFilter || pv.statut === statusFilter;
-        
-        return matchesSearch && matchesStatus;
-    });
-    
-    currentPage = 1;
-    loadPVData();
+    // Annuler le timeout précédent s'il existe
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+
+    // Définir un nouveau timeout pour retarder la recherche
+    searchTimeout = setTimeout(() => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('filterStatus').value;
+
+        filteredData = pvData.filter(pv => {
+            const matchesSearch =
+                pv.carteEtudiant.toLowerCase().includes(searchTerm) ||
+                pv.nom.toLowerCase().includes(searchTerm) ||
+                pv.prenoms.toLowerCase().includes(searchTerm) ||
+                pv.campus.toLowerCase().includes(searchTerm) ||
+                pv.identiteFaux.toLowerCase().includes(searchTerm);
+
+            const matchesStatus = !statusFilter || pv.statut === statusFilter;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        currentPage = 1;
+        loadPVData();
+    }, 300); // Délai de 300ms avant d'exécuter la recherche
 }
 
 // Voir les détails
 function viewDetails(id) {
-    const pv = pvData.find(p => p.id === id);
-    if (!pv) return;
+    const formData = new FormData();
+    formData.append('action', 'detail');
+    formData.append('id', id);
 
-    document.getElementById('detailCarteEtudiant').textContent = pv.carteEtudiant;
-    document.getElementById('detailNomPrenom').textContent = `${pv.nom} ${pv.prenoms}`;
-    document.getElementById('detailCampus').textContent = pv.campus;
-    document.getElementById('detailDate').textContent = pv.date;
-    document.getElementById('detailTelephone7').textContent = pv.telephone7;
-    document.getElementById('detailTelephoneResistant').textContent = pv.telephoneResistant;
-    document.getElementById('detailIdentiteFaux').textContent = pv.identiteFaux;
-    document.getElementById('detailTypeDocument').textContent = pv.typeDocument;
-    document.getElementById('detailChargeEnquete').textContent = pv.chargeEnquete;
-    document.getElementById('detailAgentAction').textContent = pv.agentAction;
-    document.getElementById('detailObservations').textContent = pv.observations;
-    
-    const statutElement = document.getElementById('detailStatut');
-    if (pv.statut === 'en_cours') {
-        statutElement.innerHTML = '<span class="badge bg-warning">En cours</span>';
-    } else {
-        statutElement.innerHTML = '<span class="badge bg-success">Traité</span>';
-    }
+    fetch('faux.php', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const pv = data.data;
 
-    currentDetailId = id;
-    new bootstrap.Modal(document.getElementById('detailModal')).show();
+            document.getElementById('detailCarteEtudiant').textContent = pv.carteEtudiant;
+            document.getElementById('detailNomPrenom').textContent = `${pv.nom} ${pv.prenoms}`;
+            document.getElementById('detailCampus').textContent = pv.campus;
+            document.getElementById('detailDate').textContent = pv.date;
+            document.getElementById('detailTelephone7').textContent = pv.telephone7;
+            document.getElementById('detailTelephoneResistant').textContent = pv.telephoneResistant;
+            document.getElementById('detailIdentiteFaux').textContent = pv.identiteFaux;
+            document.getElementById('detailTypeDocument').textContent = pv.typeDocument;
+            document.getElementById('detailChargeEnquete').textContent = pv.chargeEnquete;
+            document.getElementById('detailAgentAction').textContent = pv.agentAction;
+            document.getElementById('detailObservations').textContent = pv.observations;
+
+            const statutElement = document.getElementById('detailStatut');
+            if (pv.statut === 'en_cours') {
+                statutElement.innerHTML = '<span class="badge bg-warning">En cours</span>';
+            } else {
+                statutElement.innerHTML = '<span class="badge bg-success">Traité</span>';
+            }
+
+            currentDetailId = id;
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
+        } else {
+            showAlert('Erreur lors du chargement des détails', 'danger');
+        }
+    })
+    .catch(error => {
+        // console.error('Erreur:', error);
+        showAlert('Erreur lors du chargement des détails', 'danger');
+    });
 }
 
 // Éditer un PV
@@ -234,52 +276,80 @@ function editPV(id) {
 function updatePV() {
     if (!currentEditId) return;
 
-    const index = pvData.findIndex(p => p.id === currentEditId);
-    if (index === -1) return;
+    const formData = new FormData();
+    formData.append('action', 'update');
+    formData.append('id', currentEditId);
+    formData.append('carteEtudiant', document.getElementById('editCarteEtudiant').value);
+    formData.append('nom', document.getElementById('editNom').value);
+    formData.append('prenoms', document.getElementById('editPrenom').value);
+    formData.append('campus', document.getElementById('editCampus').value);
+    formData.append('telephone7', document.getElementById('editTelephone7').value);
+    formData.append('telephoneResistant', document.getElementById('editTelephoneResistant').value);
+    formData.append('identiteFaux', document.getElementById('editIdentiteFaux').value);
+    formData.append('typeDocument', document.getElementById('editTypeDocument').value);
+    formData.append('chargeEnquete', document.getElementById('editChargeEnquete').value);
+    formData.append('agentAction', document.getElementById('editAgentAction').value);
+    formData.append('observations', document.getElementById('editObservations').value);
+    formData.append('statut', document.getElementById('editStatut').value);
+    formData.append('date', document.getElementById('editDate').value);
 
-    pvData[index] = {
-        id: currentEditId,
-        carteEtudiant: document.getElementById('editCarteEtudiant').value,
-        nom: document.getElementById('editNom').value,
-        prenom: document.getElementById('editPrenom').value,
-        campus: document.getElementById('editCampus').value,
-        telephone7: document.getElementById('editTelephone7').value,
-        telephoneResistant: document.getElementById('editTelephoneResistant').value,
-        identiteFaux: document.getElementById('editIdentiteFaux').value,
-        typeDocument: document.getElementById('editTypeDocument').value,
-        chargeEnquete: document.getElementById('editChargeEnquete').value,
-        agentAction: document.getElementById('editAgentAction').value,
-        observations: document.getElementById('editObservations').value,
-        statut: document.getElementById('editStatut').value,
-        date: document.getElementById('editDate').value
-    };
+    fetch('faux.php', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Fermer le modal
+            bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
 
-    // Pas de localStorage - travail en mémoire uniquement
-    bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
-    
-    filteredData = [...pvData];
-    loadPVData();
-    updateStatistics();
-    //showAlert('Procès-verbal mis à jour avec succès!', 'success');
-    showAlert('Procès-verbal mis à jour avec succès!', 'success');
+            // Recharger les données depuis le serveur
+            refreshData();
+
+            // Message de succès
+            showAlert('Procès-verbal mis à jour avec succès!', 'success');
+        } else {
+            // Afficher les erreurs
+            showErrors(data.errors);
+        }
+    })
+    .catch(error => {
+        // console.error('Erreur:', error);
+        showAlert('Erreur lors de la mise à jour du PV', 'danger');
+    });
 }
 
 // Supprimer un PV
 function deletePV(id) {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce procès-verbal ?')) {
-        pvData = pvData.filter(p => p.id !== id);
-        
-        // Pas de localStorage - travail en mémoire uniquement
-        
-        filteredData = [...pvData];
-        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-        if (currentPage > totalPages && currentPage > 1) {
-            currentPage--;
-        }
-        
-        loadPVData();
-        updateStatistics();
-        showAlert('Procès-verbal supprimé avec succès!', 'danger');
+        const formData = new FormData();
+        formData.append('action', 'delete');
+        formData.append('id', id);
+
+        fetch('faux.php', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Recharger les données depuis le serveur
+                refreshData();
+                showAlert('Procès-verbal supprimé avec succès!', 'success');
+            } else {
+                showAlert('Erreur lors de la suppression', 'danger');
+            }
+        })
+        .catch(error => {
+            // console.error('Erreur:', error);
+            showAlert('Erreur lors de la suppression', 'danger');
+        });
     }
 }
 
@@ -288,10 +358,15 @@ function updateStatistics() {
     const total = pvData.length;
     const enCours = pvData.filter(p => p.statut === 'en_cours').length;
     const traites = pvData.filter(p => p.statut === 'traite').length;
-    
-    document.getElementById('totalPV').textContent = total;
-    document.getElementById('enCours').textContent = enCours;
-    document.getElementById('traites').textContent = traites;
+
+    // Mettre à jour seulement les éléments qui existent
+    const totalPVElement = document.getElementById('totalPV');
+    const enCoursElement = document.getElementById('enCours');
+    const traitesElement = document.getElementById('traites');
+
+    if (totalPVElement) totalPVElement.textContent = total;
+    if (enCoursElement) enCoursElement.textContent = enCours;
+    if (traitesElement) traitesElement.textContent = traites;
 }
 
 // Afficher une alerte
@@ -304,10 +379,70 @@ function showAlert(message, type) {
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
     document.body.appendChild(alertDiv);
-    
+
     setTimeout(() => {
         alertDiv.remove();
     }, 3000);
+}
+
+// Afficher les erreurs
+function showErrors(errors) {
+    // console.log('Erreurs reçues:', errors); // Pour debug
+
+    if (!errors || (Array.isArray(errors) && errors.length === 0)) {
+        // console.warn('showErrors appelé avec des erreurs vides');
+        return; // Ne rien afficher si pas d'erreurs
+    }
+
+    if (typeof errors === 'string') {
+        showAlert('Erreur: ' + errors, 'danger');
+    } else if (Array.isArray(errors)) {
+        if (errors.length === 0) return;
+        let errorMessage = 'Erreurs de validation:\n';
+        errors.forEach(error => {
+            errorMessage += '• ' + error + '\n';
+        });
+        showAlert(errorMessage, 'danger');
+    } else {
+        let errorMessage = 'Erreurs de validation:\n';
+        for (const field in errors) {
+            errorMessage += '• ' + field + ': ' + errors[field] + '\n';
+        }
+        showAlert(errorMessage, 'danger');
+    }
+}
+
+// Recharger les données depuis le serveur
+function refreshData() {
+    const formData = new FormData();
+    formData.append('action', 'get_list');
+    formData.append('page', '1');
+    formData.append('search', '');
+    formData.append('status', '');
+
+    fetch('faux.php', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            pvData = data.data;
+            filteredData = [...pvData];
+            currentPage = 1;
+            loadPVData();
+            updateStatistics();
+        } else {
+            showAlert('Erreur lors du chargement des données', 'danger');
+        }
+    })
+    .catch(error => {
+        // console.error('Erreur:', error);
+        showAlert('Erreur lors du chargement des données', 'danger');
+    });
 }
 
 // Imprimer un PV
@@ -340,34 +475,44 @@ function printPV() {
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialiser avec des données vides
-    pvData = [];
-    filteredData = [];
-    
-    // Charger les données depuis PHP si disponibles
-    if (typeof phpData !== 'undefined' && phpData.length > 0) {
-        pvData = phpData;
-        filteredData = [...pvData];
-        currentPage = phpPagination.currentPage || 1;
-        itemsPerPage = phpPagination.itemsPerPage || 10;
-    }
-    
-    // Charger et afficher les données
-    loadPVData();
-    updateStatistics();
-    
+    // Charger les données depuis le serveur
+    refreshData();
+
     // Mettre la date du jour par défaut
     const addDateElement = document.getElementById('addDate');
     const editDateElement = document.getElementById('editDate');
     if (addDateElement) addDateElement.valueAsDate = new Date();
     if (editDateElement) editDateElement.valueAsDate = new Date();
-    
-    // Écouteurs d'événements
+
+    // Prévention des soumissions de formulaires multiples
+    preventFormSubmissions();
+
+    // Écouteurs d'événements pour recherche et filtres
     const searchInput = document.getElementById('searchInput');
     const filterStatus = document.getElementById('filterStatus');
     const itemsPerPageSelect = document.getElementById('itemsPerPage');
-    
+
     if (searchInput) searchInput.addEventListener('input', filterTable);
     if (filterStatus) filterStatus.addEventListener('change', filterTable);
     if (itemsPerPageSelect) itemsPerPageSelect.addEventListener('change', changeItemsPerPage);
 });
+
+// Fonction pour prévenir les soumissions de formulaires multiples
+function preventFormSubmissions() {
+    const addForm = document.getElementById('addForm');
+    const editForm = document.getElementById('editForm');
+
+    if (addForm) {
+        addForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Empêcher la soumission par défaut
+            // La soumission se fait uniquement via le bouton onclick
+        });
+    }
+
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Empêcher la soumission par défaut
+            // La soumission se fait uniquement via le bouton onclick
+        });
+    }
+}

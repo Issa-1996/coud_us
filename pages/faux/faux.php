@@ -2,115 +2,110 @@
 // Inclure le modèle
 require_once __DIR__ . '/../../models/FauxModel.php';
 
-// Traitement des requêtes POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    
+// Gestion des requêtes AJAX uniquement (approche moderne)
+if ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') || isset($_POST['action'])) {
+    header('Content-Type: application/json');
+
+    $action = isset($_POST['action']) ? $_POST['action'] : (isset($_GET['action']) ? $_GET['action'] : '');
+    $response = ['success' => false, 'message' => 'Action non reconnue'];
+
     switch ($action) {
+        case 'get_list':
+            $page = isset($_POST['page']) ? $_POST['page'] : 1;
+            $search = isset($_POST['search']) ? $_POST['search'] : '';
+            $status = isset($_POST['status']) ? $_POST['status'] : '';
+            $result = getAllPV($page, 10, $search, $status);
+            $response = [
+                'success' => true,
+                'data' => $result['data'],
+                'pagination' => $result,
+                'statistics' => getStatistics()
+            ];
+            break;
+
         case 'create':
             $data = [
-                'carteEtudiant' => $_POST['carteEtudiant'] ?? '',
-                'nom' => $_POST['nom'] ?? '',
-                'prenoms' => $_POST['prenoms'] ?? '',
-                'campus' => $_POST['campus'] ?? '',
-                'telephone7' => $_POST['telephone7'] ?? '',
-                'telephoneResistant' => $_POST['telephoneResistant'] ?? '',
-                'observations' => $_POST['observations'] ?? '',
-                'statut' => $_POST['statut'] ?? 'en_cours',
-                'date' => $_POST['date'] ?? date('Y-m-d')
+                'carteEtudiant' => isset($_POST['carteEtudiant']) ? $_POST['carteEtudiant'] : '',
+                'nom' => isset($_POST['nom']) ? $_POST['nom'] : '',
+                'prenoms' => isset($_POST['prenoms']) ? $_POST['prenoms'] : '',
+                'campus' => isset($_POST['campus']) ? $_POST['campus'] : '',
+                'telephone7' => isset($_POST['telephone7']) ? $_POST['telephone7'] : '',
+                'telephoneResistant' => isset($_POST['telephoneResistant']) ? $_POST['telephoneResistant'] : '',
+                'identiteFaux' => isset($_POST['identiteFaux']) ? $_POST['identiteFaux'] : '',
+                'typeDocument' => isset($_POST['typeDocument']) ? $_POST['typeDocument'] : '',
+                'chargeEnquete' => isset($_POST['chargeEnquete']) ? $_POST['chargeEnquete'] : '',
+                'agentAction' => isset($_POST['agentAction']) ? $_POST['agentAction'] : '',
+                'observations' => isset($_POST['observations']) ? $_POST['observations'] : '',
+                'statut' => isset($_POST['statut']) ? $_POST['statut'] : 'en_cours',
+                'date' => isset($_POST['date']) ? $_POST['date'] : date('Y-m-d')
             ];
-            
+
             $errors = validatePV($data);
             if (empty($errors)) {
-                createPV($data);
-                header('Location: faux.php?success=1');
-                exit;
+                $id = createPV($data);
+                $response = ['success' => true, 'message' => 'PV créé avec succès', 'id' => $id];
             } else {
-                $errors = $errors;
+                $response = ['success' => false, 'errors' => $errors];
             }
             break;
-            
+
         case 'update':
-            $id = $_POST['id'] ?? '';
+            $id = isset($_POST['id']) ? $_POST['id'] : '';
             $data = [
-                'carteEtudiant' => $_POST['carteEtudiant'] ?? '',
-                'nom' => $_POST['nom'] ?? '',
-                'prenoms' => $_POST['prenoms'] ?? '',
-                'campus' => $_POST['campus'] ?? '',
-                'telephone7' => $_POST['telephone7'] ?? '',
-                'telephoneResistant' => $_POST['telephoneResistant'] ?? '',
-                'observations' => $_POST['observations'] ?? '',
-                'statut' => $_POST['statut'] ?? 'en_cours',
-                'date' => $_POST['date'] ?? date('Y-m-d')
+                'carteEtudiant' => isset($_POST['carteEtudiant']) ? $_POST['carteEtudiant'] : '',
+                'nom' => isset($_POST['nom']) ? $_POST['nom'] : '',
+                'prenoms' => isset($_POST['prenoms']) ? $_POST['prenoms'] : '',
+                'campus' => isset($_POST['campus']) ? $_POST['campus'] : '',
+                'telephone7' => isset($_POST['telephone7']) ? $_POST['telephone7'] : '',
+                'telephoneResistant' => isset($_POST['telephoneResistant']) ? $_POST['telephoneResistant'] : '',
+                'identiteFaux' => isset($_POST['identiteFaux']) ? $_POST['identiteFaux'] : '',
+                'typeDocument' => isset($_POST['typeDocument']) ? $_POST['typeDocument'] : '',
+                'chargeEnquete' => isset($_POST['chargeEnquete']) ? $_POST['chargeEnquete'] : '',
+                'agentAction' => isset($_POST['agentAction']) ? $_POST['agentAction'] : '',
+                'observations' => isset($_POST['observations']) ? $_POST['observations'] : '',
+                'statut' => isset($_POST['statut']) ? $_POST['statut'] : 'en_cours',
+                'date' => isset($_POST['date']) ? $_POST['date'] : date('Y-m-d')
             ];
-            
+
             $errors = validatePV($data);
             if (empty($errors)) {
                 updatePV($id, $data);
-                header('Location: faux.php?success=2');
-                exit;
+                $response = ['success' => true, 'message' => 'PV mis à jour avec succès'];
             } else {
-                $errors = $errors;
+                $response = ['success' => false, 'errors' => $errors];
             }
             break;
-            
+
         case 'delete':
-            $id = $_POST['id'] ?? '';
+            $id = isset($_POST['id']) ? $_POST['id'] : '';
             deletePV($id);
-            header('Location: faux.php?success=3');
-            exit;
+            $response = ['success' => true, 'message' => 'PV supprimé avec succès'];
+            break;
+
+        case 'detail':
+            $id = isset($_POST['id']) ? $_POST['id'] : '';
+            $pv = getPVById($id);
+            if ($pv) {
+                $response = ['success' => true, 'data' => $pv];
+            } else {
+                $response = ['success' => false, 'message' => 'PV non trouvé'];
+            }
+            break;
+        
+        case 'get_top5':
+            $response = ['success' => true, 'data' => getTop5Faux()];
+            break;
+
+        case 'get_recent':
+            $response = ['success' => true, 'data' => getRecentFaux(5)];
             break;
             
-        case 'generate':
-            generateFakeData(30);
-            header('Location: faux.php?success=4');
-            exit;
-            break;
-            
-        case 'export':
-            $search = $_GET['search'] ?? '';
-            $status = $_GET['status'] ?? '';
-            exportToCSV($search, $status);
-            break;
     }
+
+    echo json_encode($response);
+    exit;
 }
 
-// Traitement des requêtes GET pour les détails
-if (isset($_GET['action']) && $_GET['action'] === 'detail') {
-    $id = $_GET['id'] ?? '';
-    $pv = getPVById($id);
-    if ($pv) {
-        header('Content-Type: application/json');
-        echo json_encode($pv);
-        exit;
-    }
-}
-
-// Variables pour la vue
-$currentPage = $_GET['page'] ?? 1;
-$search = $_GET['search'] ?? '';
-$status = $_GET['status'] ?? '';
-
-// Utiliser les données du modèle directement sans fichier
-$fakeData = generateFakeData(15);
-
-$total = count($fakeData);
-$totalPages = ceil($total / 10);
-$offset = ($currentPage - 1) * 10;
-$pvData = array_slice($fakeData, $offset, 10);
-
-$pagination = [
-    'total' => $total,
-    'totalPages' => $totalPages,
-    'currentPage' => $currentPage,
-    'itemsPerPage' => 10
-];
-
-$statistics = [
-    'total' => $total,
-    'enCours' => count(array_filter($fakeData, function($pv) { return $pv['statut'] === 'en_cours'; })),
-    'traites' => count(array_filter($fakeData, function($pv) { return $pv['statut'] === 'traite'; }))
-];
 
 // Variables pour le header
 $pageTitle = "Gestion des Procès-Verbaux - Faux et Usage de Faux";
@@ -184,7 +179,11 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                             <option value="100">100</option>
                         </select>
                     </div>
-                    <span class="badge bg-primary">Total: <span id="totalCount">0</span></span>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-primary">Total: <span id="totalCount">0</span></span>
+                        <span class="badge bg-warning">En cours: <span id="enCours">0</span></span>
+                        <span class="badge bg-success">Traités: <span id="traites">0</span></span>
+                    </div>
                 </div>
             </div>
             
@@ -192,15 +191,15 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                 <table class="table table-hover align-middle" id="pvTable">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>ID</th>
                             <th>N° Carte d'Étudiant</th>
                             <th>Nom & Prénom</th>
                             <th>Campus/Résidence</th>
                             <th>Téléphone (N° 7...)</th>
-                            <th>Téléphone (résistante)</th>
-                            <th>Identité de Faux</th>
-                            <th>Type Document</th>
+                            <th>Chargé Enquete</th>
+                            <th>Agent Action</th>
                             <th>Statut</th>
+                            <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -235,6 +234,16 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <?php if (!empty($errors)): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Erreurs de validation</h6>
+                            <ul class="mb-0">
+                                <?php foreach ($errors as $error): ?>
+                                    <li><?php echo htmlspecialchars($error); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
                     <form id="addForm">
                         <div class="row">
                             <div class="col-md-12 mb-3">
@@ -624,9 +633,9 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
     
     <!-- Passer les données PHP au JavaScript -->
     <script>
-        const phpData = <?php echo json_encode($pvData ?? []); ?>;
-        const phpPagination = <?php echo json_encode($pagination ?? []); ?>;
-        const phpStatistics = <?php echo json_encode($statistics ?? []); ?>;
+        const phpData = <?php echo json_encode(isset($pvData) ? $pvData : []); ?>;
+        const phpPagination = <?php echo json_encode(isset($pagination) ? $pagination : []); ?>;
+        const phpStatistics = <?php echo json_encode(isset($statistics) ? $statistics : []); ?>;
     </script>
     <script src="../../assets/js/faux-init.js"></script>
 </body>

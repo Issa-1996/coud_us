@@ -217,6 +217,7 @@ header {
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  overflow-x: auto;
 }
 
 .table thead th {
@@ -282,4 +283,125 @@ header {
 #paginationInfo {
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 992px) {
+  .header-section {
+    padding: 20px 0;
+  }
+
+  .table-wrapper {
+    padding: 15px;
+  }
+
+  .btn-action {
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-top: 120px;
+  }
+
+  .header-section {
+    padding: 15px 0;
+    margin-bottom: 20px;
+  }
+
+  .header-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .table-wrapper {
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+
+  .btn-action {
+    padding: 2px 4px;
+    font-size: 0.75rem;
+  }
+
+  .badge-status {
+    font-size: 0.7rem;
+  }
+
+  .pagination .page-link {
+    padding: 6px 10px;
+    font-size: 0.875rem;
+  }
+
+  #paginationInfo {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  header {
+    padding: 8px 15px;
+  }
+
+  .logo-container span {
+    font-size: 16px;
+  }
+
+  .header-section h2 {
+    font-size: 1.25rem;
+  }
+
+  .header-section .btn {
+    font-size: 0.875rem;
+    padding: 8px 16px;
+  }
+
+  .table-wrapper {
+    padding: 8px;
+  }
+
+  .table thead th {
+    font-size: 0.8rem;
+    padding: 8px 4px;
+  }
+
+  .table tbody td {
+    font-size: 0.8rem;
+    padding: 6px 4px;
+  }
+
+  .btn-action {
+    padding: 1px 3px;
+    font-size: 0.7rem;
+  }
+
+  .badge-status {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+  }
+
+  .pagination {
+    gap: 2px;
+  }
+
+  .pagination .page-link {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
+  #paginationInfo {
+    font-size: 0.75rem;
+  }
+
+  /* Stack action buttons vertically on very small screens */
+  .btn-action {
+    display: block;
+    width: 100%;
+    margin-bottom: 2px;
+  }
+
+  .btn-action:last-child {
+    margin-bottom: 0;
+  }
 }

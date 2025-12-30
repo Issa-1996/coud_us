@@ -72,4 +72,11 @@ function validatePV($data) {
 function exportToCSV($search = '', $status = '') {
     return exportFauxToCSV($search, $status);
 }
+
+/**
+ * Obtenir les activités récentes (derniers PVs)
+ */
+function getRecentActivities($limit = 5) {
+    return getRecentFaux($limit);
+}
 ?>

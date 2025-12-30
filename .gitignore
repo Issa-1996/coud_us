@@ -10,6 +10,7 @@ config.php
 logs/
 tmp/
 temp/
+logs/*.log
 
 # Fichiers de base de données
 *.sql
