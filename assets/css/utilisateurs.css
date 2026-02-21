@@ -1,0 +1,481 @@
+/* Styles spécifiques pour la gestion des utilisateurs */
+
+/* Cartes de statistiques utilisateurs */
+.stats-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--primary-color);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card .stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.stats-card .stats-icon.primary {
+    background: rgba(55, 119, 176, 0.1);
+    color: var(--primary-color);
+}
+
+.stats-card .stats-icon.success {
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--success-color);
+}
+
+.stats-card .stats-icon.warning {
+    background: rgba(243, 156, 18, 0.1);
+    color: var(--warning-color);
+}
+
+.stats-card .stats-icon.danger {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--danger-color);
+}
+
+.stats-card h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stats-card p {
+    color: #6c757d;
+    margin: 0;
+}
+
+/* Badges de rôle */
+.role-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.role-badge.admin {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--danger-color);
+}
+
+.role-badge.superviseur {
+    background: rgba(243, 156, 18, 0.1);
+    color: var(--warning-color);
+}
+
+.role-badge.agent {
+    background: rgba(55, 119, 176, 0.1);
+    color: var(--primary-color);
+}
+
+.role-badge.operateur {
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--success-color);
+}
+
+/* Badges de statut */
+.statut-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.statut-badge.actif {
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--success-color);
+}
+
+.statut-badge.inactif {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+/* Actions rapides utilisateur */
+.user-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.user-actions .btn {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+    border-radius: 6px;
+}
+
+.user-actions .btn-sm {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+}
+
+/* Carte utilisateur */
+.user-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--primary-color);
+}
+
+.user-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.user-card .user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.user-card .user-info h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.user-card .user-info p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.user-card .user-stats {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.user-card .user-stat {
+    text-align: center;
+    flex: 1;
+}
+
+.user-card .user-stat .stat-number {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.user-card .user-stat .stat-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+/* Formulaire d'utilisateur */
+.user-form .form-group {
+    margin-bottom: 20px;
+}
+
+.user-form .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.user-form .form-control,
+.user-form .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.user-form .form-control:focus,
+.user-form .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(55, 119, 176, 0.25);
+    outline: none;
+}
+
+.user-form .password-toggle {
+    position: relative;
+}
+
+.user-form .password-toggle .toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.user-form .password-toggle .toggle-password:hover {
+    color: var(--primary-color);
+}
+
+/* Table des utilisateurs */
+.table-utilisateurs {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.table-utilisateurs .table {
+    margin: 0;
+}
+
+.table-utilisateurs .table th {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    padding: 15px 12px;
+}
+
+.table-utilisateurs .table td {
+    padding: 15px 12px;
+    vertical-align: middle;
+}
+
+.table-utilisateurs .table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table-utilisateurs .user-avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-right: 10px;
+}
+
+/* Filtres avancés */
+.filtres-avances {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.filtres-avances .filtre-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filtres-avances .filtre-row {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+}
+
+.filtres-avances .filtre-group {
+    flex: 1;
+}
+
+.filtres-avances .btn-filtre {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.filtres-avances .btn-filtre:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+/* Modal utilisateur */
+.modal-utilisateur .modal-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    border: none;
+}
+
+.modal-utilisateur .modal-header .btn-close {
+    color: white;
+}
+
+.modal-utilisateur .modal-body {
+    padding: 30px;
+}
+
+.modal-utilisateur .avatar-upload {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.modal-utilisateur .avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.modal-utilisateur .avatar-upload .btn-upload {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.modal-utilisateur .avatar-upload .btn-upload:hover {
+    background: var(--secondary-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-card {
+        margin-bottom: 20px;
+    }
+    
+    .user-card {
+        margin-bottom: 20px;
+    }
+    
+    .filtres-avances .filtre-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filtres-avances .filtre-group {
+        width: 100%;
+    }
+    
+    .table-utilisateurs {
+        font-size: 0.875rem;
+    }
+    
+    .table-utilisateurs .table th,
+    .table-utilisateurs .table td {
+        padding: 10px 8px;
+    }
+    
+    .user-actions {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .user-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-card {
+    animation: fadeInUp 0.5s ease;
+}
+
+.stats-card {
+    animation: fadeInUp 0.5s ease;
+}
+
+/* Loading states */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Empty states */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-state .empty-icon {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.empty-state h5 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    margin-bottom: 20px;
+}
+
+.empty-state .btn-action {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.empty-state .btn-action:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
