@@ -1,3 +1,19 @@
+<?php
+session_start();
+require_once __DIR__ . '/config/paths.php';
+
+// Protection : rediriger vers login si non connecté
+if (!isset($_SESSION['utilisateur_id'])) {
+    redirect('/login');
+    exit();
+}
+
+// Forcer le changement de mot de passe si première connexion
+if (!empty($_SESSION['doit_changer_mdp'])) {
+    redirect('/change-password');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -15,161 +31,10 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="assets/css/common.css">
+
     <style>
-        :root {
-            --primary-color: #3777B0;
-            --secondary-color: #2c5f8d;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-        }
-
-        body {
-            background-color: #f8fafc;
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-top: 140px;
-        }
-
-        /* Navbar Styles - Style COUD'MAINT */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #ddd;
-            flex-wrap: wrap;
-            z-index: 1000;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-container img {
-            height: 40px;
-        }
-
-        .logo-container span {
-            margin-left: 10px;
-            font-weight: bold;
-            font-size: 18px;
-            color: #333;
-        }
-
-        /* Navigation desktop */
-        .desktop-nav ul {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .desktop-nav li {
-            margin: 0 10px;
-        }
-
-        .desktop-nav a {
-            text-decoration: none;
-            color: #333;
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-
-        .desktop-nav a:hover {
-            background-color: #e9ecef;
-        }
-
-        .desktop-nav a.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .desktop-nav i {
-            margin-right: 5px;
-        }
-
-        /* Menu hamburger */
-        .hamburger {
-            display: none;
-            cursor: pointer;
-            font-size: 24px;
-            color: #333;
-        }
-
-        /* Navigation mobile */
-        .mobile-nav {
-            display: none;
-            width: 100%;
-        }
-
-        .mobile-nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .mobile-nav li {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .mobile-nav a {
-            text-decoration: none;
-            color: #333;
-            display: flex;
-            align-items: center;
-        }
-
-        .mobile-nav a.active {
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        .mobile-nav i {
-            margin-right: 10px;
-        }
-
-        .mobile-nav.active {
-            display: block;
-        }
-
-        /* Banner */
-        .banner {
-            position: fixed;
-            top: 60px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            padding: 10px;
-            background: var(--primary-color);
-            color: white;
-            z-index: 999;
-        }
-
-        /* Media queries */
-        @media (max-width: 768px) {
-            .desktop-nav {
-                display: none;
-            }
-
-            .hamburger {
-                display: block;
-            }
-
-            body {
-                padding-top: 120px;
-            }
-        }
-
         /* Footer Styles */
         .footer-custom {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
@@ -383,9 +248,18 @@
 
 <body>
     <?php
-    $bannerText = "Système de Gestion des Procès-Verbaux - USCOUD";
-    include __DIR__ . '/includes/head.php';
-    ?>
+require_once __DIR__ . '/data/dashboard_functions.php';
+
+// Récupérer les statistiques réelles
+$globalStats = getGlobalStatistics();
+$latestPVs = getLatestPVs();
+$monthlyStats = getMonthlyStatistics();
+$recentActivities = getRecentActivities();
+$incidentTypes = getIncidentTypes();
+
+$bannerText = "Système de Gestion des Procès-Verbaux - USCOUD";
+include __DIR__ . '/includes/head.php';
+?>
 
     <!-- Hero Section -->
     <div class="hero-section">
@@ -412,7 +286,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="mb-1">Total PV</p>
-                                <h3 id="totalGlobal">0</h3>
+                                <h3 id="totalGlobal"><?php echo number_format($globalStats['total_pv']); ?></h3>
                             </div>
                             <div class="icon-wrapper bg-primary bg-opacity-10 text-primary">
                                 <i class="fas fa-file-alt"></i>
@@ -428,7 +302,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="mb-1">En cours</p>
-                                <h3 class="text-warning" id="enCoursGlobal">0</h3>
+                                <h3 class="text-warning" id="enCoursGlobal"><?php echo number_format($globalStats['en_cours']); ?></h3>
                             </div>
                             <div class="icon-wrapper bg-warning bg-opacity-10 text-warning">
                                 <i class="fas fa-clock"></i>
@@ -444,7 +318,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="mb-1">Traités</p>
-                                <h3 class="text-success" id="traitesGlobal">0</h3>
+                                <h3 class="text-success" id="traitesGlobal"><?php echo number_format($globalStats['traites']); ?></h3>
                             </div>
                             <div class="icon-wrapper bg-success bg-opacity-10 text-success">
                                 <i class="fas fa-check-circle"></i>
@@ -460,7 +334,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="mb-1">Ce mois</p>
-                                <h3 class="text-danger" id="ceMois">0</h3>
+                                <h3 class="text-danger" id="ceMois"><?php echo number_format($globalStats['ce_mois']); ?></h3>
                             </div>
                             <div class="icon-wrapper bg-danger bg-opacity-10 text-danger">
                                 <i class="fas fa-calendar-day"></i>
@@ -476,109 +350,71 @@
             <div class="col-md-4">
                 <div class="chart-container">
                     <h5><i class="fas fa-list me-2"></i>Top 5 - Faux et Usage de Faux</h5>
-                    <ul class="list-group list-group-flush" id="listFaux"></ul>
+                    <ul class="list-group list-group-flush" id="listFaux">
+                        <?php if (empty($latestPVs['faux'])): ?>
+                            <li class="list-group-item text-center text-muted">Aucun PV enregistré</li>
+                        <?php else: ?>
+                            <?php foreach ($latestPVs['faux'] as $pv): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><?php echo htmlspecialchars($pv['nom'] . ' ' . $pv['prenoms']); ?></strong>
+                                        <span class="badge bg-<?php echo $pv['statut_color']; ?> ms-2">
+                                            <?php echo $pv['statut']; ?>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted"><?php echo date('d/m/Y', strtotime($pv['created_at'])); ?></small>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="chart-container">
                     <h5><i class="fas fa-list me-2"></i>Top 5 - Constat d'Incident</h5>
-                    <ul class="list-group list-group-flush" id="listConstat"></ul>
+                    <ul class="list-group list-group-flush" id="listConstat">
+                        <?php if (empty($latestPVs['constat'])): ?>
+                            <li class="list-group-item text-center text-muted">Aucun PV enregistré</li>
+                        <?php else: ?>
+                            <?php foreach ($latestPVs['constat'] as $pv): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><?php echo htmlspecialchars($pv['lieu_incident']); ?></strong>
+                                        <span class="badge bg-<?php echo $pv['statut_color']; ?> ms-2">
+                                            <?php echo $pv['statut']; ?>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted"><?php echo date('d/m/Y', strtotime($pv['created_at'])); ?></small>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="chart-container">
                     <h5><i class="fas fa-list me-2"></i>Top 5 - Dénonciations</h5>
-                    <ul class="list-group list-group-flush" id="listDenonciation"></ul>
+                    <ul class="list-group list-group-flush" id="listDenonciation">
+                        <?php if (empty($latestPVs['denonciation'])): ?>
+                            <li class="list-group-item text-center text-muted">Aucun PV enregistré</li>
+                        <?php else: ?>
+                            <?php foreach ($latestPVs['denonciation'] as $pv): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><?php echo htmlspecialchars($pv['denonciateur_nom']); ?></strong>
+                                        <span class="badge bg-<?php echo $pv['statut_color']; ?> ms-2">
+                                            <?php echo $pv['statut']; ?>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted"><?php echo date('d/m/Y', strtotime($pv['created_at'])); ?></small>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Modules d'Accès Rapide -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card module-card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-id-card me-2"></i>Faux et Usage de Faux</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-4">Gestion des procès-verbaux d'appréhension pour faux documents (cartes d'étudiant, CNI, passeports).</p>
-                        <div id="detailsFaux" class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span><i class="fas fa-circle text-primary me-2" style="font-size: 0.5rem;"></i>Total</span>
-                                <strong id="fauxTotal">0</strong>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span><i class="fas fa-circle text-warning me-2" style="font-size: 0.5rem;"></i>En cours</span>
-                                <strong id="fauxEnCours2">0</strong>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span><i class="fas fa-circle text-success me-2" style="font-size: 0.5rem;"></i>Traités</span>
-                                <strong id="fauxTraites2">0</strong>
-                            </div>
-                        </div>
-                        <a href="pages/faux/faux.php" class="btn btn-module w-100">
-                            <i class="fas fa-arrow-right me-2"></i>Accéder
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card module-card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-file-medical me-2"></i>Constat d'Incident</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-4">Gestion des constats d'incidents avec blessés physiques, dommages matériels, assaillants et témoignages.</p>
-                        <div id="detailsConstat" class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span><i class="fas fa-circle text-primary me-2" style="font-size: 0.5rem;"></i>Total</span>
-                                <strong id="constatTotal">0</strong>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span><i class="fas fa-circle text-warning me-2" style="font-size: 0.5rem;"></i>En cours</span>
-                                <strong id="constatEnCours2">0</strong>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span><i class="fas fa-circle text-success me-2" style="font-size: 0.5rem;"></i>Traités</span>
-                                <strong id="constatTraites2">0</strong>
-                            </div>
-                        </div>
-                        <a href="pages/constat/constat.php" class="btn btn-module w-100">
-                            <i class="fas fa-arrow-right me-2"></i>Accéder
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card module-card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Dénonciation</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-4">Gestion des dénonciations pour violence, harcèlement, diffamation et vol avec suivi des victimes et auteurs.</p>
-                        <div id="detailsDenonciation" class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span><i class="fas fa-circle text-primary me-2" style="font-size: 0.5rem;"></i>Total</span>
-                                <strong id="denonciationTotal">0</strong>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span><i class="fas fa-circle text-warning me-2" style="font-size: 0.5rem;"></i>En cours</span>
-                                <strong id="denonciationEnCours2">0</strong>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span><i class="fas fa-circle text-success me-2" style="font-size: 0.5rem;"></i>Traités</span>
-                                <strong id="denonciationTraites2">0</strong>
-                            </div>
-                        </div>
-                        <a href="pages/denonciation/denonciation.php" class="btn btn-module w-100">
-                            <i class="fas fa-arrow-right me-2"></i>Accéder
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Statistiques et Graphiques -->
         <div class="row">
@@ -588,19 +424,19 @@
                     <div class="text-center">
                         <div class="d-flex justify-content-around align-items-end" style="height: 200px;">
                             <div class="text-center">
-                                <div style="width: 60px; height: 120px; background: rgba(55, 119, 176, 0.8); border-radius: 4px; margin: 0 auto;"></div>
+                                <div style="width: 60px; height: <?php echo max(20, min(120, $globalStats['details']['faux']['total'] * 10)); ?>px; background: rgba(55, 119, 176, 0.8); border-radius: 4px; margin: 0 auto;"></div>
                                 <small class="d-block mt-2">Faux</small>
-                                <strong>5</strong>
+                                <strong><?php echo $globalStats['details']['faux']['total']; ?></strong>
                             </div>
                             <div class="text-center">
-                                <div style="width: 60px; height: 120px; background: rgba(243, 156, 18, 0.8); border-radius: 4px; margin: 0 auto;"></div>
+                                <div style="width: 60px; height: <?php echo max(20, min(120, $globalStats['details']['constat']['total'] * 10)); ?>px; background: rgba(243, 156, 18, 0.8); border-radius: 4px; margin: 0 auto;"></div>
                                 <small class="d-block mt-2">Constat</small>
-                                <strong>5</strong>
+                                <strong><?php echo $globalStats['details']['constat']['total']; ?></strong>
                             </div>
                             <div class="text-center">
-                                <div style="width: 60px; height: 120px; background: rgba(39, 174, 96, 0.8); border-radius: 4px; margin: 0 auto;"></div>
+                                <div style="width: 60px; height: <?php echo max(20, min(120, $globalStats['details']['denonciation']['total'] * 10)); ?>px; background: rgba(39, 174, 96, 0.8); border-radius: 4px; margin: 0 auto;"></div>
                                 <small class="d-block mt-2">Dénonciation</small>
-                                <strong>5</strong>
+                                <strong><?php echo $globalStats['details']['denonciation']['total']; ?></strong>
                             </div>
                         </div>
                     </div>
@@ -611,15 +447,20 @@
                 <div class="chart-container">
                     <h5><i class="fas fa-chart-pie me-2"></i>Statuts Globaux</h5>
                     <div class="text-center">
+                        <?php 
+                        $totalForPie = $globalStats['en_cours'] + $globalStats['traites'];
+                        $enCoursPercent = $totalForPie > 0 ? ($globalStats['en_cours'] / $totalForPie) * 100 : 0;
+                        $traitesPercent = $totalForPie > 0 ? ($globalStats['traites'] / $totalForPie) * 100 : 0;
+                        ?>
                         <div style="width: 150px; height: 150px; margin: 0 auto; position: relative;">
-                            <div style="width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(rgba(243, 156, 18, 0.8) 0% 50%, rgba(39, 174, 96, 0.8) 50% 100%);"></div>
+                            <div style="width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(rgba(243, 156, 18, 0.8) 0% <?php echo $enCoursPercent; ?>%, rgba(39, 174, 96, 0.8) <?php echo $enCoursPercent; ?>% 100%);"></div>
                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <strong>15</strong>
+                                <strong><?php echo $totalForPie; ?></strong>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <span class="badge me-2" style="background: rgba(243, 156, 18, 0.8);">En cours: 8</span>
-                            <span class="badge" style="background: rgba(39, 174, 96, 0.8);">Traités: 7</span>
+                            <span class="badge me-2" style="background: rgba(243, 156, 18, 0.8);">En cours: <?php echo $globalStats['en_cours']; ?></span>
+                            <span class="badge" style="background: rgba(39, 174, 96, 0.8);">Traités: <?php echo $globalStats['traites']; ?></span>
                         </div>
                     </div>
                 </div>
@@ -633,18 +474,13 @@
                     <h5><i class="fas fa-chart-line me-2"></i>Évolution Mensuelle</h5>
                     <div style="height: 200px; position: relative; padding: 20px;">
                         <div style="position: absolute; bottom: 40px; left: 20px; right: 20px; height: 120px; display: flex; align-items: flex-end; justify-content: space-between;">
-                            <div style="width: 30px; height: 40px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 60px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 45px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 80px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 70px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 90px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 75px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 85px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 95px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 65px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 55px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
-                            <div style="width: 30px; height: 50px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;"></div>
+                            <?php 
+                            $maxMonthly = max(array_column($monthlyStats, 'total'));
+                            foreach ($monthlyStats as $month): 
+                                $height = $maxMonthly > 0 ? ($month['total'] / $maxMonthly) * 120 : 0;
+                            ?>
+                                <div style="width: 30px; height: <?php echo max(2, $height); ?>px; background: rgba(55, 119, 176, 0.3); border-radius: 2px;" title="<?php echo $month['month_name'] . ': ' . $month['total']; ?> PV"></div>
+                            <?php endforeach; ?>
                         </div>
                         <div style="position: absolute; bottom: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; font-size: 11px; color: #666;">
                             <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Aoû</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Déc</span>
@@ -683,17 +519,17 @@
                     <h5><i class="fas fa-bolt me-2"></i>Actions Rapides</h5>
                     <div class="row">
                         <div class="col-md-3">
-                            <a href="pages/faux/faux.php" class="quick-action-btn">
+                            <a href="pages/faux/faux" class="quick-action-btn">
                                 <i class="fas fa-plus-square me-2 text-success"></i>Nouveau PV Faux
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <a href="pages/constat/constat.php" class="quick-action-btn">
+                            <a href="pages/constat/constat" class="quick-action-btn">
                                 <i class="fas fa-plus-square me-2 text-success"></i>Nouveau Constat
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <a href="pages/denonciation/denonciation.php" class="quick-action-btn">
+                            <a href="pages/denonciation/denonciation" class="quick-action-btn">
                                 <i class="fas fa-plus-square me-2 text-success"></i>Nouvelle Dénonciation
                             </a>
                         </div>
@@ -707,94 +543,6 @@
             </div>
         </div>
 
-        <!-- Activités Récentes -->
-        <div class="row">
-            <div class="col-md-8">
-                <div class="chart-container">
-                    <h5><i class="fas fa-history me-2"></i>Activités Récentes</h5>
-                    <div id="recentActivities">
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <span class="badge bg-primary me-2">
-                                        <i class="fas fa-id-card me-1"></i>Faux et Usage de Faux
-                                    </span>
-                                    <strong>Diop Moussa</strong>
-                                    <span class="badge bg-warning ms-2">En cours</span>
-                                </div>
-                                <span class="activity-time">23/12/2024</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <span class="badge bg-success me-2">
-                                        <i class="fas fa-file-medical me-1"></i>Constat d'Incident
-                                    </span>
-                                    <strong>Campus Social ESP - Bagarre</strong>
-                                    <span class="badge bg-success ms-2">Traité</span>
-                                </div>
-                                <span class="activity-time">22/12/2024</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <span class="badge bg-danger me-2">
-                                        <i class="fas fa-exclamation-triangle me-1"></i>Dénonciation
-                                    </span>
-                                    <strong>Mbaye Ibrahima</strong>
-                                    <span class="badge bg-warning ms-2">En cours</span>
-                                </div>
-                                <span class="activity-time">21/12/2024</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <span class="badge bg-primary me-2">
-                                        <i class="fas fa-id-card me-1"></i>Faux et Usage de Faux
-                                    </span>
-                                    <strong>Fall Fatou</strong>
-                                    <span class="badge bg-success ms-2">Traité</span>
-                                </div>
-                                <span class="activity-time">20/12/2024</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <span class="badge bg-success me-2">
-                                        <i class="fas fa-file-medical me-1"></i>Constat d'Incident
-                                    </span>
-                                    <strong>Résidence Claudel - Vol</strong>
-                                    <span class="badge bg-warning ms-2">En cours</span>
-                                </div>
-                                <span class="activity-time">19/12/2024</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <h5><i class="fas fa-bolt me-2"></i>Actions Rapides</h5>
-                    <a href="pages/faux/faux.php" class="quick-action-btn">
-                        <i class="fas fa-plus-circle me-2"></i>Nouveau PV Faux
-                    </a>
-                    <a href="pages/constat/constat.php" class="quick-action-btn">
-                        <i class="fas fa-plus-circle me-2"></i>Nouveau Constat
-                    </a>
-                    <a href="pages/denonciation/denonciation.php" class="quick-action-btn">
-                        <i class="fas fa-plus-circle me-2"></i>Nouvelle Dénonciation
-                    </a>
-                    <a href="#" class="quick-action-btn">
-                        <i class="fas fa-download me-2"></i>Export Global
-                    </a>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Bootstrap 5 JS -->
@@ -1095,36 +843,9 @@
     <footer class="footer-custom">
         <div class="container">
             <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5><i class="fas fa-shield-alt me-2"></i>USCOUD</h5>
-                    <p class="text-white-50">
-                        Système de Gestion des Procès-Verbaux<br>
-                        Unité de Sécurité du Centre des Œuvres Universitaires de Dakar
-                    </p>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5><i class="fas fa-link me-2"></i>Liens Rapides</h5>
-                    <ul>
-                        <li><a href="pages/faux/faux.php"><i class="fas fa-chevron-right me-2"></i>Faux et Usage de Faux</a></li>
-                        <li><a href="pages/constat/constat.php"><i class="fas fa-chevron-right me-2"></i>Constat d'Incident</a></li>
-                        <li><a href="pages/denonciation/denonciation.php"><i class="fas fa-chevron-right me-2"></i>Dénonciation</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Statistiques</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5><i class="fas fa-envelope me-2"></i>Contact</h5>
-                    <ul>
-                        <li><i class="fas fa-map-marker-alt me-2"></i>UCAD, Dakar, Sénégal</li>
-                        <li><i class="fas fa-phone me-2"></i>+221 33 XXX XX XX</li>
-                        <li><i class="fas fa-envelope me-2"></i>contact@uscoud.sn</li>
-                    </ul>
-                </div>
-            </div>
-            <hr style="border-color: rgba(255,255,255,0.1)">
-            <div class="row">
                 <div class="col-md-12 text-center">
                     <p class="mb-0 text-white-50">
-                        &copy; <?php echo date('Y'); ?> USCOUD - Tous droits réservés | Développé avec <i class="fas fa-heart text-danger"></i>
+                        &copy; <?php echo date('Y'); ?> USCOUD - Tous droits r&eacute;serv&eacute;s
                     </p>
                 </div>
             </div>
