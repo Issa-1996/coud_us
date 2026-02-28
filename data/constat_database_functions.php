@@ -145,6 +145,7 @@ function createPVConstat($data) {
         }
         
         // Insertion des témoignages
+        error_log('[DEBUG createPVConstat] temoignages reçus: ' . json_encode($data['temoignages'] ?? 'NON DEFINI'));
         if (!empty($data['temoignages'])) {
             foreach ($data['temoignages'] as $temoignage) {
                 $sql = "INSERT INTO uscoud_pv_temoignages 

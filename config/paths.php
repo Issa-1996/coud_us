@@ -4,10 +4,15 @@
  * Gestion des URLs et redirections
  */
 
+// Configuration API UCAD
+define('API_UCAD_BASE_URL', 'https://coudservice.ucad.sn/api');
+define('API_UCAD_USERNAME', 'coud@ucad.sn');
+define('API_UCAD_PASSWORD', 'dhHNg4VmpfZYR6Q');
+
 // Détection automatique de l'environnement
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'];
-$base_path = '/COUD/uscoud';
+$base_path = '/campuscoud.com/securite'; // Chemin de base de l'application
 
 // Configuration des chemins
 define('BASE_URL', $protocol . '://' . $host . $base_path);

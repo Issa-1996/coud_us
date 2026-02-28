@@ -4,6 +4,9 @@
  * USCOUD - Système de Gestion des Procès-Verbaux
  */
 
+//connexion à la base de données
+// NB: connexionBD() est chargée dans codif_recherche_functions.php via traitement/fonction.php
+
 // Configuration de la base de données
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'uscoud_db');
@@ -311,22 +314,8 @@ function createLog($connexion, $idUtilisateur, $action, $table, $idEnregistremen
         $idUtilisateur, $action, $table, $idEnregistrement, $ancienJson, $nouveauJson, $ip, $userAgent) > 0;
 }
 
-/**
- * Connexion à la base de données bdcodif (étudiants résidents)
- * @return mysqli|false
- */
-function getCodifConnection() {
-    $connexion = mysqli_connect(DB_HOST, DB_USER, DB_PASS, 'bdcodif');
-
-    if (!$connexion) {
-        error_log("Erreur de connexion bdcodif: " . mysqli_connect_error());
-        return false;
-    }
-
-    mysqli_set_charset($connexion, DB_CHARSET);
-
-    return $connexion;
-}
+// La connexion à bdcodif2 (résidents) est gérée par connexionBD()
+// définie dans traitement/fonction.php — chargé via require_once ci-dessus.
 
 /**
  * Fonction de test de connexion

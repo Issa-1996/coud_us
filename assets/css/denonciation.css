@@ -101,74 +101,149 @@ transition: transform 0.3s;
 
 /* Responsive Design */
 @media (max-width: 768px) {
-.table-wrapper {
-padding: 15px;
-margin-bottom: 20px;
-}
+  .table-wrapper {
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
 
-.table thead th {
-padding: 10px 8px;
-font-size: 0.75rem;
-letter-spacing: 0.3px;
-}
+  /* Scroll horizontal pour les tables */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
-.table tbody td {
-padding: 12px 8px;
-font-size: 0.85rem;
-}
+  .table {
+    font-size: 0.85rem;
+    min-width: 540px;
+  }
 
-.btn-action {
-padding: 4px 8px;
-font-size: 0.75rem;
-margin: 0 1px;
-}
+  .table thead th {
+    padding: 10px 8px;
+    font-size: 0.75rem;
+    letter-spacing: 0.3px;
+  }
 
-.badge-status {
-padding: 6px 10px;
-font-size: 0.7rem;
-}
+  .table tbody td {
+    padding: 10px 8px;
+    font-size: 0.82rem;
+  }
 
-/* Masquer certaines colonnes sur mobile */
-.table-responsive th:nth-child(5),
-.table-responsive td:nth-child(5),
-.table-responsive th:nth-child(6),
-.table-responsive td:nth-child(6) {
-display: none;
-}
+  .btn-action {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    margin: 0 1px;
+  }
+
+  .badge-status {
+    padding: 5px 9px;
+    font-size: 0.7rem;
+  }
+
+  /* Masquer certaines colonnes sur mobile */
+  .table-responsive th:nth-child(5),
+  .table-responsive td:nth-child(5),
+  .table-responsive th:nth-child(6),
+  .table-responsive td:nth-child(6) {
+    display: none;
+  }
+
+  /* Stepper compact */
+  .stepper-wrapper {
+    margin-bottom: 10px;
+  }
+
+  .step-counter {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    margin-bottom: 0;
+  }
+
+  .step-name {
+    display: none;
+  }
+
+  .stepper-wrapper::before {
+    top: 16px;
+  }
+
+  .form-step {
+    min-height: auto;
+  }
+
+  .section-title {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+  }
+
+  /* Pagination info */
+  #paginationInfo {
+    font-size: 0.8rem;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 6px;
+  }
+
+  .pagination .page-link {
+    padding: 5px 9px;
+    font-size: 0.82rem;
+  }
+
+  /* Header */
+  .header-section {
+    padding: 20px 0;
+  }
 }
 
 @media (max-width: 576px) {
-.table-wrapper {
-padding: 10px;
-}
+  .table-wrapper {
+    padding: 8px;
+  }
 
-.table thead th {
-padding: 8px 6px;
-font-size: 0.7rem;
-}
+  .table {
+    font-size: 0.78rem;
+  }
 
-.table tbody td {
-padding: 10px 6px;
-font-size: 0.8rem;
-}
+  .table thead th {
+    padding: 8px 6px;
+    font-size: 0.7rem;
+  }
 
-.btn-action {
-padding: 3px 6px;
-font-size: 0.7rem;
-}
+  .table tbody td {
+    padding: 8px 6px;
+    font-size: 0.75rem;
+  }
 
-.badge-status {
-padding: 4px 8px;
-font-size: 0.65rem;
-}
+  .btn-action {
+    padding: 3px 6px;
+    font-size: 0.7rem;
+  }
 
-/* Masquer plus de colonnes sur très petits écrans */
-.table-responsive th:nth-child(3),
-.table-responsive td:nth-child(3),
-.table-responsive th:nth-child(4),
-.table-responsive td:nth-child(4) {
-display: none;
-}
+  .badge-status {
+    padding: 4px 8px;
+    font-size: 0.65rem;
+  }
+
+  /* Masquer plus de colonnes sur très petits écrans */
+  .table-responsive th:nth-child(3),
+  .table-responsive td:nth-child(3),
+  .table-responsive th:nth-child(4),
+  .table-responsive td:nth-child(4) {
+    display: none;
+  }
+
+  /* Stepper encore plus compact */
+  .step-counter {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .stepper-wrapper::before {
+    top: 14px;
+  }
 }
 
 /* Animation pour le chargement des données */
