@@ -493,18 +493,40 @@ include __DIR__ . '/includes/head.php';
                 <div class="chart-container">
                     <h5><i class="fas fa-chart-doughnut me-2"></i>Types d'Incidents</h5>
                     <div class="text-center">
+                        <?php
+                        // construire la répartition à partir des données serveur
+                        $incidentData = $incidentTypes['incident_types'] ?? [];
+                        $totalIncident = array_sum(array_column($incidentData, 'count'));
+                        $colors = [
+                            'rgba(231, 76, 60, 0.8)',
+                            'rgba(243, 156, 18, 0.8)',
+                            'rgba(52, 152, 219, 0.8)',
+                            'rgba(149, 165, 166, 0.8)',
+                            'rgba(52, 73, 94, 0.8)',
+                            'rgba(155, 89, 182, 0.8)'
+                        ];
+                        $gradientParts = [];
+                        $badgeHtml = '';
+                        $start = 0;
+                        foreach ($incidentData as $idx => $row) {
+                            $pct = $totalIncident > 0 ? ($row['count'] / $totalIncident) * 100 : 0;
+                            $end = $start + $pct;
+                            $color = $colors[$idx % count($colors)];
+                            $gradientParts[] = "$color $start% $end%";
+                            $badgeHtml .= '<span class="badge me-1" style="background: ' . $color . ';">' . htmlspecialchars($row['type']) . ': ' . $row['count'] . '</span>';
+                            $start = $end;
+                        }
+                        $gradientCss = $gradientParts ? implode(', ', $gradientParts) : 'transparent';
+                        ?>
                         <div style="width: 150px; height: 150px; margin: 0 auto; position: relative;">
-                            <div style="width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(rgba(231, 76, 60, 0.8) 0% 25%, rgba(243, 156, 18, 0.8) 25% 50%, rgba(52, 152, 219, 0.8) 50% 75%, rgba(149, 165, 166, 0.8) 75% 100%);"></div>
+                            <div style="width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(<?php echo $gradientCss; ?>);"></div>
                             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <strong>5</strong>
+                                <strong><?php echo $totalIncident; ?></strong>
                             </div>
                         </div>
                         <div class="mt-3">
                             <div class="small">
-                                <span class="badge me-1" style="background: rgba(231, 76, 60, 0.8);">Bagarre: 1</span>
-                                <span class="badge me-1" style="background: rgba(243, 156, 18, 0.8);">Vol: 1</span>
-                                <span class="badge me-1" style="background: rgba(52, 152, 219, 0.8);">Accident: 1</span>
-                                <span class="badge" style="background: rgba(149, 165, 166, 0.8);">Incendie: 2</span>
+                                <?php echo $badgeHtml ?: '<em>Aucun incident enregistré</em>'; ?>
                             </div>
                         </div>
                     </div>
@@ -555,57 +577,6 @@ include __DIR__ . '/includes/head.php';
             if (el) el.textContent = value;
         };
 
-        // Fonctions de génération de données fictives
-        function generateFakePvFaux() {
-            const noms = ['Diop', 'Ndiaye', 'Fall', 'Sarr', 'Sow'];
-            const prenoms = ['Moussa', 'Fatou', 'Aminata', 'Abdou', 'Cheikh'];
-            const statuts = ['en_cours', 'traite'];
-            
-            return Array.from({length: 5}, (_, i) => {
-                const date = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
-                return {
-                    id: Date.now() + i,
-                    nom: noms[Math.floor(Math.random() * noms.length)],
-                    prenom: prenoms[Math.floor(Math.random() * prenoms.length)],
-                    statut: statuts[Math.floor(Math.random() * statuts.length)],
-                    date: date.toISOString().split('T')[0]
-                };
-            });
-        }
-
-        function generateFakePvConstat() {
-            const lieux = ['Campus Social ESP', 'Campus Social UCAD', 'Résidence Claudel', 'Cité Mixte', 'FASTEF'];
-            const natures = ['Bagarre', 'Vol', 'Accident', 'Incendie', 'Vandalisme'];
-            const statuts = ['en_cours', 'traite'];
-            
-            return Array.from({length: 5}, (_, i) => {
-                const date = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
-                return {
-                    id: Date.now() + 100 + i,
-                    lieuIncident: lieux[Math.floor(Math.random() * lieux.length)],
-                    natureIncident: natures[Math.floor(Math.random() * natures.length)],
-                    statut: statuts[Math.floor(Math.random() * statuts.length)],
-                    dateIncident: date.toISOString().split('T')[0]
-                };
-            });
-        }
-
-        function generateFakePvDenonciation() {
-            const noms = ['Diouf', 'Mbaye', 'Sy', 'Kane', 'Diallo'];
-            const prenoms = ['Mariama', 'Ibrahima', 'Ousmane', 'Khady', 'Serigne'];
-            const statuts = ['en_cours', 'traite'];
-            
-            return Array.from({length: 5}, (_, i) => {
-                const date = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
-                return {
-                    id: Date.now() + 200 + i,
-                    soussigne: noms[Math.floor(Math.random() * noms.length)],
-                    soussignePrenom: prenoms[Math.floor(Math.random() * prenoms.length)],
-                    statut: statuts[Math.floor(Math.random() * statuts.length)],
-                    datePV: date.toISOString().split('T')[0]
-                };
-            });
-        }
 
         // Fonction pour créer les graphiques
         function createCharts(pvFaux, pvConstat, pvDenonciation) {
@@ -798,44 +769,12 @@ include __DIR__ . '/includes/head.php';
 
         // Initialisation principale
         document.addEventListener('DOMContentLoaded', function() {
-            // Générer des données fictives si nécessaire
-            if (!localStorage.getItem('pvMockSeeded')) {
-                localStorage.setItem('pvData', JSON.stringify(generateFakePvFaux()));
-                localStorage.setItem('pvConstat', JSON.stringify(generateFakePvConstat()));
-                localStorage.setItem('pvDenonciation', JSON.stringify(generateFakePvDenonciation()));
-                localStorage.setItem('pvMockSeeded', 'true');
+            // Les valeurs du tableau de bord sont déjà affichées en PHP.
+            // Plus aucune donnée fictive n'est générée ni stockée dans localStorage.
+            // On crée tout de même des graphiques vides pour maintenir le rendu.
+            if (typeof createCharts === 'function') {
+                createCharts([], [], []);
             }
-
-            // Récupérer les données
-            const pvFaux = JSON.parse(localStorage.getItem('pvData')) || [];
-            const pvConstat = JSON.parse(localStorage.getItem('pvConstat')) || [];
-            const pvDenonciation = JSON.parse(localStorage.getItem('pvDenonciation')) || [];
-
-            // Calculer les statistiques globales
-            const totalGlobal = pvFaux.length + pvConstat.length + pvDenonciation.length;
-            const enCoursGlobal = pvFaux.filter(p => p.statut === 'en_cours').length +
-                                pvConstat.filter(p => p.statut === 'en_cours').length +
-                                pvDenonciation.filter(p => p.statut === 'en_cours').length;
-            const traitesGlobal = pvFaux.filter(p => p.statut === 'traite').length +
-                                 pvConstat.filter(p => p.statut === 'traite').length +
-                                 pvDenonciation.filter(p => p.statut === 'traite').length;
-
-            // Mettre à jour l'interface
-            setText('totalGlobal', totalGlobal);
-            setText('enCoursGlobal', enCoursGlobal);
-            setText('traitesGlobal', traitesGlobal);
-            setText('fauxTotal', pvFaux.length);
-            setText('fauxEnCours2', pvFaux.filter(p => p.statut === 'en_cours').length);
-            setText('fauxTraites2', pvFaux.filter(p => p.statut === 'traite').length);
-            setText('constatTotal', pvConstat.length);
-            setText('constatEnCours2', pvConstat.filter(p => p.statut === 'en_cours').length);
-            setText('constatTraites2', pvConstat.filter(p => p.statut === 'traite').length);
-            setText('denonciationTotal', pvDenonciation.length);
-            setText('denonciationEnCours2', pvDenonciation.filter(p => p.statut === 'en_cours').length);
-            setText('denonciationTraites2', pvDenonciation.filter(p => p.statut === 'traite').length);
-
-            // Créer les graphiques
-            createCharts(pvFaux, pvConstat, pvDenonciation);
         });
     </script>
 

@@ -1,4 +1,6 @@
 ﻿<?php
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
 // Vérification de session
 session_start();
 require_once __DIR__ . '/../../config/paths.php';
@@ -381,7 +383,7 @@ $bannerText = "Procès-Verbal: Constat d'Incident - USCOUD";
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>N° Carte d'Étudiant</th>
+                            <th>N° Piéce</th>
                             <th>Nom & Prénom</th>
                             <th>Date & Heure</th>
                             <th>Lieu</th>
@@ -542,7 +544,7 @@ $bannerText = "Procès-Verbal: Constat d'Incident - USCOUD";
                             <div class="row">
                                 <div class="col-md-12 mb-3">
                                     <label for="addCarteEtudiant" class="form-label">
-                                        <i class="fas fa-id-card me-1"></i>N° Carte d'Étudiant *
+                                        <i class="fas fa-id-card me-1"></i>N° Carte *
                                     </label>
                                     <input type="text" class="form-control" id="addCarteEtudiant" required placeholder="Ex: 123456789">
                                 </div>
@@ -818,7 +820,7 @@ $bannerText = "Procès-Verbal: Constat d'Incident - USCOUD";
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-12 mb-3">
-                                                <label for="editCarteEtudiant" class="form-label">N° Carte d'Étudiant *</label>
+                                                <label for="editCarteEtudiant" class="form-label">N° Piéce *</label>
                                                 <input type="text" class="form-control" id="editCarteEtudiant" name="editCarteEtudiant" required placeholder="Ex: 123456789">
                                             </div>
 
@@ -1150,7 +1152,7 @@ $bannerText = "Procès-Verbal: Constat d'Incident - USCOUD";
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label text-muted">N° Carte d'Étudiant</label>
+                                            <label class="form-label text-muted">N° Piéce</label>
                                             <p class="form-control-plaintext fw-bold" id="detailCarteEtudiant">-</p>
                                         </div>
                                         <div class="col-md-6 mb-3">
@@ -1331,9 +1333,9 @@ $bannerText = "Procès-Verbal: Constat d'Incident - USCOUD";
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/js/constat-steps.js"></script>
+    <script src="../../assets/js/constat-steps.js?v=<?php echo filemtime(__DIR__.'/../../assets/js/constat-steps.js'); ?>"></script>
     <script>var USER_ROLE = '<?php echo $_SESSION["role"] ?? ""; ?>'; var USER_ID = <?php echo $_SESSION["utilisateur_id"] ?? 0; ?>;</script>
-    <script src="../../assets/js/constat-database.js"></script>
+    <script src="../../assets/js/constat-database.js?v=<?php echo filemtime(__DIR__.'/../../assets/js/constat-database.js'); ?>"></script>
 
     <!-- Passer les données PHP au JavaScript -->
     <script>
@@ -1352,6 +1354,14 @@ $bannerText = "Procès-Verbal: Constat d'Incident - USCOUD";
             }
         });
     </script>
+
+<?php if (!empty($_GET['view']) && is_numeric($_GET['view'])): ?>
+<script>
+window.addEventListener('load', function() {
+    setTimeout(function() { viewPV(<?php echo (int)$_GET['view']; ?>); }, 700);
+});
+</script>
+<?php endif; ?>
 </body>
 
 </html>

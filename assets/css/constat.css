@@ -267,3 +267,124 @@
   font-size: 0.9rem;
   font-weight: 500;
 }
+
+/* =============================================
+   RESPONSIVE MOBILE — CONSTAT
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Stepper: réduire et masquer les labels */
+  .stepper-wrapper {
+    margin-bottom: 10px;
+  }
+  .step-counter {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    margin-bottom: 0;
+  }
+  .step-name {
+    display: none;
+  }
+  .stepper-wrapper::before {
+    top: 16px;
+  }
+
+  /* Tabs détails: scrollables horizontalement */
+  .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-bottom: none;
+    padding-bottom: 2px;
+  }
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .nav-tabs .nav-link {
+    white-space: nowrap;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.8rem;
+  }
+  .nav-tabs .nav-link .badge {
+    font-size: 0.65em;
+  }
+
+  /* Contenu des tabs */
+  .tab-content {
+    padding: 0.75rem;
+  }
+
+  /* Steps de formulaire */
+  .form-step {
+    min-height: auto;
+  }
+  .section-title {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+
+  /* Items dynamiques */
+  .blesse-item,
+  .dommage-item,
+  .assaillant-item,
+  .audition-item,
+  .temoignage-item {
+    padding: 10px;
+  }
+
+  /* Boutons de navigation stepper */
+  #prevBtn, #nextBtn, #submitBtn {
+    padding: 7px 12px;
+    font-size: 0.85rem;
+  }
+
+  /* Modal footer avec plusieurs boutons */
+  .modal-footer {
+    justify-content: center;
+  }
+
+  /* Infos PV */
+  .pv-info {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  /* Pagination info */
+  #paginationInfo {
+    font-size: 0.8rem;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  /* Row de filtres : empiler sur mobile */
+  .row.g-3 > [class*="col-md"] {
+    margin-bottom: 6px;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Stepper encore plus compact */
+  .step-counter {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+  .stepper-wrapper::before {
+    top: 14px;
+  }
+
+  /* Tabs: texte encore plus petit */
+  .nav-tabs .nav-link {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.75rem;
+  }
+
+  /* Tab content */
+  .tab-content {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+}

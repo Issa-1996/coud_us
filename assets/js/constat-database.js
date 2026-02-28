@@ -4,6 +4,7 @@ let itemsPerPage = 10;
 let searchQuery = '';
 let statusFilter = '';
 let lastPagination = null;
+let _pendingStepData = null; // Données pré-collectées avant la modal de confirmation
 
 // Fonction utilitaire pour échapper le HTML (protection XSS)
 function escapeHtml(text) {
@@ -55,11 +56,35 @@ function setupEventListeners() {
 
 // Configuration des événements des modales
 function setupModalEventListeners() {
+    // Nettoyer les containers dynamiques à chaque ouverture du modal d'ajout
+    const addModal = document.getElementById('addModal');
+    if (addModal) {
+        addModal.addEventListener('show.bs.modal', function() {
+            ['blessesContainer', 'dommagesContainer', 'assaillantsContainer',
+             'auditionsContainer', 'temoignagesContainer'].forEach(function(id) {
+                var c = document.getElementById(id);
+                if (c) c.innerHTML = '';
+            });
+            if (typeof resetStepper === 'function') resetStepper();
+        });
+    }
+
     // Bouton de confirmation d'ajout
     const confirmSaveBtn = document.getElementById('confirmSaveBtn');
     if (confirmSaveBtn) {
         confirmSaveBtn.addEventListener('click', function() {
             savePV();
+        });
+    }
+
+    // Nettoyage des backdrops résiduels quand successSaveModal se ferme
+    const successSaveModal = document.getElementById('successSaveModal');
+    if (successSaveModal) {
+        successSaveModal.addEventListener('hidden.bs.modal', function() {
+            document.querySelectorAll('.modal-backdrop').forEach(function(el) { el.remove(); });
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         });
     }
     
@@ -341,12 +366,14 @@ function viewPV(id) {
         .then(response => response.json())
         .then(pv => {
             if (pv) {
+                console.log('[DEBUG viewPV] temoignages reçus:', JSON.stringify(pv.temoignages));
                 fillDetailModal(pv);
                 const modal = new bootstrap.Modal(document.getElementById('detailModal'));
                 modal.show();
             }
         })
         .catch(error => {
+            console.error('[DEBUG viewPV] erreur:', error);
             showError('Erreur lors du chargement des détails');
         });
 }
@@ -596,10 +623,10 @@ function fillAuditions(auditions) {
         var row = document.createElement('div');
         row.className = 'row';
         var fields = [
-            ['col-md-6 mb-2', 'Témoin:', (audition.nom || '') + ' ' + (audition.prenoms || '')],
-            ['col-md-6 mb-2', 'Statut:', getPersonneStatusLabel(audition.statut)]
+            ['col-md-6 mb-2', 'Témoin:', (audition.temoin_nom || '') + ' ' + (audition.temoin_prenoms || '')],
+            ['col-md-6 mb-2', 'Statut:', getPersonneStatusLabel(audition.temoin_statut)]
         ];
-        if (audition.telephone) fields.push(['col-md-6 mb-2', 'Téléphone:', audition.telephone]);
+        if (audition.temoin_telephone) fields.push(['col-md-6 mb-2', 'Téléphone:', audition.temoin_telephone]);
         if (audition.date_audition) fields.push(['col-md-6 mb-2', 'Date audition:', formatDate(audition.date_audition)]);
         if (audition.declaration) fields.push(['col-md-12 mb-2', 'Déclaration:', audition.declaration]);
         fields.forEach(function(f) {
@@ -1347,6 +1374,21 @@ function confirmSavePV() {
         return;
     }
     
+    // Collecter toutes les données des steps AVANT d'ouvrir la modal de confirmation
+    _pendingStepData = {
+        blesses: collectStepData('blesses'),
+        dommages: collectStepData('dommages'),
+        assaillants: collectStepData('assaillants'),
+        auditions: collectStepData('auditions'),
+        temoignages: collectStepData('temoignages'),
+        telephone: document.getElementById('addTelephone')?.value?.trim() || '',
+        heureIncident: document.getElementById('addHeureIncident')?.value?.trim() || '',
+        observations: document.getElementById('addObservations')?.value?.trim() || '',
+        suitesBlesses: document.getElementById('addSuitesBlesses')?.value?.trim() || '',
+        suitesDommages: document.getElementById('addSuitesDommages')?.value?.trim() || '',
+        suitesAssaillants: document.getElementById('addSuitesAssaillants')?.value?.trim() || ''
+    };
+
     // Préparer le récapitulatif (sécurisé)
     var summaryContainer = document.getElementById('confirmSummary');
     summaryContainer.innerHTML = '';
@@ -1358,7 +1400,8 @@ function confirmSavePV() {
         ['Campus:', campus],
         ['Type:', typeIncident],
         ['Date:', dateIncident],
-        ['Lieu:', lieuIncident]
+        ['Lieu:', lieuIncident],
+        ['Témoignages:', _pendingStepData.temoignages.length + ' ajouté(s)']
     ];
     summaryFields.forEach(function(f) {
         var col = document.createElement('div');
@@ -1377,7 +1420,7 @@ function confirmSavePV() {
     descDiv.appendChild(descStrong);
     descDiv.appendChild(document.createTextNode(descriptionIncident.substring(0, 100) + (descriptionIncident.length > 100 ? '...' : '')));
     summaryContainer.appendChild(descDiv);
-    
+
     // Afficher la modale de confirmation
     const modal = new bootstrap.Modal(document.getElementById('confirmSaveModal'));
     modal.show();
@@ -1403,18 +1446,18 @@ function savePV() {
     const lieuIncident = document.getElementById('addLieuIncident')?.value?.trim();
     const descriptionIncident = document.getElementById('addDescriptionIncident')?.value?.trim();
     
-    // Collecter les données des sections supplémentaires
-    const blesses = collectStepData('blesses');
-    const dommages = collectStepData('dommages');
-    const assaillants = collectStepData('assaillants');
-    const auditions = collectStepData('auditions');
-    const temoignages = collectStepData('temoignages');
-    
+    // Utiliser les données pré-collectées (avant la modal de confirmation)
+    const blesses = _pendingStepData != null ? _pendingStepData.blesses : collectStepData('blesses');
+    const dommages = _pendingStepData != null ? _pendingStepData.dommages : collectStepData('dommages');
+    const assaillants = _pendingStepData != null ? _pendingStepData.assaillants : collectStepData('assaillants');
+    const auditions = _pendingStepData != null ? _pendingStepData.auditions : collectStepData('auditions');
+    const temoignages = _pendingStepData != null ? _pendingStepData.temoignages : collectStepData('temoignages');
+
     // Collecter les observations et suites
-    const observations = document.getElementById('addObservations')?.value?.trim() || '';
-    const suitesBlesses = document.getElementById('addSuitesBlesses')?.value?.trim() || '';
-    const suitesDommages = document.getElementById('addSuitesDommages')?.value?.trim() || '';
-    const suitesAssaillants = document.getElementById('addSuitesAssaillants')?.value?.trim() || '';
+    const observations = _pendingStepData != null ? _pendingStepData.observations : (document.getElementById('addObservations')?.value?.trim() || '');
+    const suitesBlesses = _pendingStepData != null ? _pendingStepData.suitesBlesses : (document.getElementById('addSuitesBlesses')?.value?.trim() || '');
+    const suitesDommages = _pendingStepData != null ? _pendingStepData.suitesDommages : (document.getElementById('addSuitesDommages')?.value?.trim() || '');
+    const suitesAssaillants = _pendingStepData != null ? _pendingStepData.suitesAssaillants : (document.getElementById('addSuitesAssaillants')?.value?.trim() || '');
     
     if (!carteEtudiant || !nom || !prenoms || !campus || !typeIncident || !dateIncident || !lieuIncident || !descriptionIncident) {
         showError('Veuillez remplir tous les champs obligatoires');
@@ -1448,7 +1491,9 @@ function savePV() {
         statut: 'en_cours',
         date: new Date().toISOString().split('T')[0]
     };
-    
+
+    console.log('[DEBUG savePV] temoignages envoyés:', JSON.stringify(data.temoignages), '| source:', _pendingStepData != null ? 'pré-collecté' : 'DOM direct');
+
     // Désactiver le bouton pendant la sauvegarde
     const submitBtn = document.getElementById('confirmSaveBtn');
     if (submitBtn) {
@@ -1472,30 +1517,34 @@ function savePV() {
     })
     .then(result => {
         if (result.success) {
-            // Fermer la modale de confirmation
+            _pendingStepData = null;
+
+            // 1. Fermer les deux modales empilées
             const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmSaveModal'));
-            if (confirmModal) {
-                confirmModal.hide();
-            }
-            
-            // Mettre à jour le numéro PV dans la modale de succès
-            document.getElementById('pvNumber').textContent = result.id ? `ID: ${result.id}` : 'PV-CONSTAT-' + new Date().toISOString().split('T')[0].replace(/-/g, '');
-            
-            // Afficher la modale de succès
-            const successModal = new bootstrap.Modal(document.getElementById('successSaveModal'));
-            successModal.show();
-            
-            // Fermer la modale d'ajout
-            const addModal = bootstrap.Modal.getInstance(document.getElementById('addModal'));
-            if (addModal) {
-                addModal.hide();
-            }
-            
-            // Réinitialiser le formulaire
+            if (confirmModal) confirmModal.hide();
+
+            const addModalInstance = bootstrap.Modal.getInstance(document.getElementById('addModal'));
+            if (addModalInstance) addModalInstance.hide();
+
+            // Réinitialiser le formulaire et rafraîchir la liste
             form.reset();
-            
-            // Rafraîchir la liste
             loadPVData();
+
+            // 2. Attendre la fin des animations Bootstrap, nettoyer les backdrops,
+            //    puis afficher la modale de succès proprement
+            setTimeout(function() {
+                document.querySelectorAll('.modal-backdrop').forEach(function(el) { el.remove(); });
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+
+                document.getElementById('pvNumber').textContent = result.id
+                    ? 'ID: ' + result.id
+                    : 'PV-CONSTAT-' + new Date().toISOString().split('T')[0].replace(/-/g, '');
+
+                const successModal = new bootstrap.Modal(document.getElementById('successSaveModal'));
+                successModal.show();
+            }, 400);
         } else {
             // Afficher les erreurs de validation détaillées
             if (result.errors && Array.isArray(result.errors)) {

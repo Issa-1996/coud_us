@@ -467,7 +467,7 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                             
                             <div class="col-md-6 mb-3">
                                 <label for="addTelephoneResistant" class="form-label">
-                                    <i class="fas fa-phone-alt me-1"></i>Téléphone (résistante)
+                                    <i class="fas fa-phone-alt me-1"></i>Téléphone (résident)
                                 </label>
                                 <input type="tel" class="form-control" id="addTelephoneResistant">
                             </div>
@@ -479,18 +479,6 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                                 <input type="text" class="form-control" id="addIdentiteFaux" placeholder="Ex: M. Diop Abdoulaye">
                             </div>
 
-                            <div class="col-md-12 mb-3">
-                                <label for="addEmpreinte" class="form-label">
-                                    <i class="fas fa-fingerprint me-1"></i>Empreinte de la personne
-                                </label>
-                                <input type="file" class="form-control" id="addEmpreinte" name="empreinte"
-                                       accept="image/jpeg,image/png,image/gif,image/webp">
-                                <div class="form-text text-muted">Image JPG, PNG ou GIF — max 5 Mo</div>
-                                <div id="addEmpreintePreview" class="mt-2" style="display:none;">
-                                    <img id="addEmpreinteImg" src="" alt="Aperçu empreinte"
-                                         style="max-width:150px; max-height:150px; border:1px solid #dee2e6; border-radius:4px;">
-                                </div>
-                            </div>
 
                             <div class="col-md-12 mb-3">
                                 <label for="addChargeEnquete" class="form-label">
@@ -608,7 +596,7 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                             
                             <div class="col-md-6 mb-3">
                                 <label for="editTelephoneResistant" class="form-label">
-                                    <i class="fas fa-phone-alt me-1"></i>Téléphone (résistante)
+                                    <i class="fas fa-phone-alt me-1"></i>Téléphone (résident)
                                 </label>
                                 <input type="tel" class="form-control" id="editTelephoneResistant">
                             </div>
@@ -620,19 +608,6 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                                 <input type="text" class="form-control" id="editIdentiteFaux" placeholder="Ex: M. Diop Abdoulaye">
                             </div>
 
-                            <div class="col-md-12 mb-3">
-                                <label for="editEmpreinte" class="form-label">
-                                    <i class="fas fa-fingerprint me-1"></i>Empreinte de la personne
-                                </label>
-                                <input type="file" class="form-control" id="editEmpreinte" name="empreinte"
-                                       accept="image/jpeg,image/png,image/gif,image/webp">
-                                <div class="form-text text-muted">Laisser vide pour conserver l'empreinte existante</div>
-                                <input type="hidden" id="editEmpreinteExistante" name="empreinte_existante">
-                                <div id="editEmpreintePreview" class="mt-2" style="display:none;">
-                                    <img id="editEmpreinteImg" src="" alt="Aperçu empreinte"
-                                         style="max-width:150px; max-height:150px; border:1px solid #dee2e6; border-radius:4px;">
-                                </div>
-                            </div>
 
                             <div class="col-md-12 mb-3">
                                 <label for="editChargeEnquete" class="form-label">
@@ -738,7 +713,7 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                                             <span class="detail-value" id="detailTelephone7">-</span>
                                         </div>
                                         <div class="col-md-6 mb-2">
-                                            <span class="detail-label">Téléphone (résistante):</span><br>
+                                            <span class="detail-label">Téléphone (résident):</span><br>
                                             <span class="detail-value" id="detailTelephoneResistant">-</span>
                                         </div>
                                     </div>
@@ -760,11 +735,6 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                                         <div class="col-md-6 mb-2">
                                             <span class="detail-label">Type Document:</span><br>
                                             <span class="detail-value" id="detailTypeDocument">-</span>
-                                        </div>
-                                        <div class="col-md-12 mb-2" id="detailEmpreinteRow" style="display:none;">
-                                            <span class="detail-label"><i class="fas fa-fingerprint me-1"></i>Empreinte :</span><br>
-                                            <img id="detailEmpreinteImg" src="" alt="Empreinte"
-                                                 style="max-width:180px; max-height:180px; border:1px solid #dee2e6; border-radius:4px; margin-top:4px;">
                                         </div>
                                     </div>
                                 </div>
@@ -941,5 +911,13 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
             window.itemsPerPage = <?php echo $pagination['itemsPerPage']; ?>;
         });
     </script>
+
+<?php if (!empty($_GET['view']) && is_numeric($_GET['view'])): ?>
+<script>
+window.addEventListener('load', function() {
+    setTimeout(function() { viewDetails(<?php echo (int)$_GET['view']; ?>); }, 700);
+});
+</script>
+<?php endif; ?>
 </body>
 </html>

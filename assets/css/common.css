@@ -532,21 +532,149 @@ header {
   border-right-color: transparent;
 }
 
-/* Responsive adjustments */
+/* =============================================
+   RESPONSIVE MOBILE
+   ============================================= */
+
 @media (max-width: 768px) {
+  /* Header section */
+  .header-section {
+    padding: 30px 0;
+  }
   .header-section h2 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
-  
   .header-section p {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
-  
+
+  /* Table wrapper */
   .table-wrapper {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  /* Tables: scroll horizontal */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table {
+    font-size: 0.875rem;
+    min-width: 500px;
+  }
+
+  /* Forms */
+  .form-control,
+  .form-select {
+    padding: 9px 12px;
+    font-size: 15px;
+  }
+  .form-label {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+  }
+
+  /* Buttons */
+  .btn-primary,
+  .btn-light,
+  .btn-success,
+  .btn-warning,
+  .btn-danger {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  /* Modals */
+  .modal-dialog {
+    margin: 8px;
+    max-width: calc(100vw - 16px);
+  }
+  .modal-body {
     padding: 15px;
   }
-  
+  .modal-footer {
+    padding: 10px 15px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .modal-footer .btn {
+    font-size: 0.85rem;
+    padding: 7px 12px;
+  }
+  .modal-xl {
+    max-width: calc(100vw - 16px);
+  }
+
+  /* Pagination */
+  .pagination .page-link {
+    padding: 5px 9px;
+    font-size: 0.85rem;
+  }
+
+  /* Banner */
+  .banner {
+    font-size: 0.85rem;
+    padding: 7px 10px;
+  }
+
+  /* Search box */
+  .search-box {
+    font-size: 14px;
+    padding: 9px 14px;
+  }
+
+  /* Footer */
+  .footer-custom {
+    padding: 25px 0 15px 0;
+    margin-top: 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    padding-top: 105px;
+  }
+
+  .banner {
+    top: 55px;
+    font-size: 0.8rem;
+    padding: 5px 8px;
+  }
+
   .modal-dialog {
-    margin: 15px;
+    margin: 4px;
+    max-width: calc(100vw - 8px);
+  }
+  .modal-body {
+    padding: 12px;
+  }
+
+  .table {
+    font-size: 0.8rem;
+  }
+
+  .header-section {
+    padding: 20px 0;
+  }
+  .header-section h2 {
+    font-size: 1.3rem;
+  }
+
+  /* Buttons côte à côte → taille réduite */
+  .btn-sm {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  /* Badges */
+  .badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  /* Stats cards */
+  .stats-card h3 {
+    font-size: 1.6rem;
   }
 }
