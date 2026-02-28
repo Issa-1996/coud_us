@@ -372,38 +372,130 @@
 /* Responsive */
 @media (max-width: 768px) {
     .stats-card {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
+        padding: 15px;
     }
-    
+
+    .stats-card h3 {
+        font-size: 1.6rem;
+    }
+
+    .stats-card .stats-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+    }
+
     .user-card {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
+        padding: 15px;
     }
-    
+
+    .user-card .user-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+
+    .filtres-avances {
+        padding: 12px;
+    }
+
     .filtres-avances .filtre-row {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .filtres-avances .filtre-group {
         width: 100%;
     }
-    
+
+    /* Table utilisateurs : scroll horizontal */
     .table-utilisateurs {
-        font-size: 0.875rem;
+        font-size: 0.85rem;
+        overflow-x: auto;
     }
-    
+
+    .table-utilisateurs .table {
+        min-width: 550px;
+    }
+
     .table-utilisateurs .table th,
     .table-utilisateurs .table td {
         padding: 10px 8px;
     }
-    
-    .user-actions {
-        flex-direction: column;
-        gap: 5px;
+
+    /* Masquer colonnes secondaires */
+    .table-utilisateurs .table th:nth-child(4),
+    .table-utilisateurs .table td:nth-child(4),
+    .table-utilisateurs .table th:nth-child(5),
+    .table-utilisateurs .table td:nth-child(5) {
+        display: none;
     }
-    
+
+    .user-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
     .user-actions .btn {
-        width: 100%;
+        font-size: 0.78rem;
+        padding: 4px 8px;
+    }
+
+    /* Avatar small dans la table */
+    .table-utilisateurs .user-avatar-small {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+        margin-right: 6px;
+    }
+
+    .modal-utilisateur .modal-body {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-card {
+        padding: 12px;
+    }
+
+    .stats-card h3 {
+        font-size: 1.4rem;
+    }
+
+    .stats-card .stats-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .filtres-avances {
+        padding: 10px;
+    }
+
+    .table-utilisateurs .table {
+        font-size: 0.78rem;
+    }
+
+    /* Masquer encore plus de colonnes */
+    .table-utilisateurs .table th:nth-child(3),
+    .table-utilisateurs .table td:nth-child(3) {
+        display: none;
+    }
+
+    .user-card .user-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+    }
+
+    .role-badge,
+    .statut-badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
     }
 }
 

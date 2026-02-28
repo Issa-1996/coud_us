@@ -594,15 +594,15 @@ $bannerText = "Procès-Verbal: Dénonciation - USCOUD";
                                 </div>
                             </div>
 
-                            <div class="section-title mt-4">
+                            <!-- <div class="section-title mt-4">
                                 <i class="fas fa-user-graduate me-2"></i>Étudiant concerné (optionnel)
-                            </div>
+                            </div> -->
                             
-                            <div class="section-title mt-4">
+                            <!-- <div class="section-title mt-4">
                                 <i class="fas fa-user-graduate me-2"></i>Étudiant concerné
-                            </div>
+                            </div> -->
                             <div class="row mb-3">
-                                <div class="col-md-8">
+                                <!-- <div class="col-md-8">
                                     <label for="addIdEtudiant" class="form-label">Rechercher un étudiant (N° étudiant, nom ou prénom)</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" id="addIdEtudiant" placeholder="Ex: 20211234 ou Diop">
@@ -611,12 +611,12 @@ $bannerText = "Procès-Verbal: Dénonciation - USCOUD";
                                         </button>
                                     </div>
                                     <div id="addEtudiantResults" class="list-group mt-1" style="display:none; max-height:200px; overflow-y:auto;"></div>
-                                </div>
-                                <div class="col-md-4 d-flex align-items-end">
+                                </div> -->
+                                <!-- <div class="col-md-4 d-flex align-items-end">
                                     <button class="btn btn-outline-secondary btn-sm" type="button" onclick="clearEtudiant('add')">
                                         <i class="fas fa-times me-1"></i>Effacer
                                     </button>
-                                </div>
+                                </div> -->
                             </div>
                             <div id="addEtudiantPreview" class="card mb-3" style="display:none;">
                                 <div class="card-body p-2">
@@ -1248,3 +1248,11 @@ $bannerText = "Procès-Verbal: Dénonciation - USCOUD";
         window.savePV = savePVForm;
         window.resetStepper = resetStepperForm;
     </script>
+
+<?php if (!empty($_GET['view']) && is_numeric($_GET['view'])): ?>
+<script>
+window.addEventListener('load', function() {
+    setTimeout(function() { viewDetail(<?php echo (int)$_GET['view']; ?>); }, 700);
+});
+</script>
+<?php endif; ?>

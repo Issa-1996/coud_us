@@ -49,3 +49,50 @@
     font-size: 0.9rem;
     font-weight: 500;
 }
+
+/* =============================================
+   RESPONSIVE MOBILE — FAUX
+   ============================================= */
+
+@media (max-width: 768px) {
+  .table-wrapper {
+    padding: 10px;
+    border-radius: 8px;
+  }
+  .table {
+    font-size: 0.85rem;
+    min-width: 520px;
+  }
+  /* Masquer colonnes secondaires */
+  .table-responsive th:nth-child(4),
+  .table-responsive td:nth-child(4),
+  .table-responsive th:nth-child(5),
+  .table-responsive td:nth-child(5) {
+    display: none;
+  }
+  .pagination .page-link {
+    padding: 5px 9px;
+    font-size: 0.82rem;
+  }
+  #paginationInfo {
+    font-size: 0.8rem;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 6px;
+  }
+}
+
+@media (max-width: 576px) {
+  .table {
+    font-size: 0.78rem;
+  }
+  /* Masquer encore plus de colonnes */
+  .table-responsive th:nth-child(3),
+  .table-responsive td:nth-child(3) {
+    display: none;
+  }
+  .badge {
+    font-size: 0.68rem;
+    padding: 3px 6px;
+  }
+}

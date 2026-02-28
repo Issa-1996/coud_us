@@ -214,7 +214,15 @@
   }
 
   .hero-section {
-    padding: 40px 0;
+    padding: 30px 0;
+  }
+
+  .hero-section h1 {
+    font-size: 1.6rem;
+  }
+
+  .hero-section p {
+    font-size: 0.95rem;
   }
 
   .desktop-nav {
@@ -227,5 +235,97 @@
 
   .banner {
     top: 50px;
+  }
+
+  /* Stats cards */
+  .stats-card {
+    margin-bottom: 15px;
+  }
+
+  .stats-card .card-body {
+    padding: 15px;
+  }
+
+  .stats-card h3 {
+    font-size: 1.8rem;
+  }
+
+  /* Search container */
+  .search-container {
+    padding: 15px;
+  }
+
+  .search-input {
+    font-size: 0.9rem;
+    padding: 9px 14px;
+  }
+
+  .search-btn {
+    padding: 9px 18px;
+    font-size: 0.9rem;
+  }
+
+  /* Result card */
+  .result-card .card-body {
+    padding: 15px;
+  }
+
+  .info-value {
+    font-size: 0.95rem;
+  }
+
+  /* Detail section */
+  .detail-section {
+    padding: 12px;
+  }
+
+  /* Quick actions */
+  .quick-action-btn {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    padding-top: 105px;
+  }
+
+  .hero-section {
+    padding: 20px 0;
+  }
+
+  .hero-section h1 {
+    font-size: 1.3rem;
+  }
+
+  .stats-card h3 {
+    font-size: 1.5rem;
+  }
+
+  .search-container {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .student-badge {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+
+  .info-label {
+    font-size: 0.78rem;
+  }
+
+  .info-value {
+    font-size: 0.88rem;
+  }
+
+  .empty-state {
+    padding: 40px 15px;
+  }
+
+  .empty-state i {
+    font-size: 3rem;
   }
 }

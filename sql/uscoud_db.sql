@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : ven. 20 fév. 2026 à 20:47
+-- Généré le : sam. 28 fév. 2026 à 06:54
 -- Version du serveur : 9.1.0
 -- Version de PHP : 8.3.14
 
@@ -395,19 +395,7 @@ CREATE TABLE IF NOT EXISTS `uscoud_pv_temoignages` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `id_constat` (`id_constat`)
-) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Déchargement des données de la table `uscoud_pv_temoignages`
---
-
-INSERT INTO `uscoud_pv_temoignages` (`id`, `id_constat`, `temoin_nom`, `temoin_prenoms`, `temoin_telephone`, `temoin_adresse`, `temoin_statut`, `temoignage`, `date_temoignage`, `created_at`) VALUES
-(1, 1, 'DIOP', 'MADIOP', '779455667', 'Mbour', 'etudiant', 'HJG', '2026-01-05 00:00:00', '2026-01-05 09:36:12'),
-(2, 2, 'KJJHG', 'KLJKLJK', '764567898', 'MKJK', 'etudiant', 'KJHKJHKJHKJHKJHKJH', '2026-01-05 00:00:00', '2026-01-05 09:41:26'),
-(3, 3, 'DIOP', 'MADIOP', '709718173', 'Mbour', 'etudiant', 'KJHKJHKJHKJHKJHKJH', '2026-01-05 00:00:00', '2026-01-05 09:52:12'),
-(11, 13, 'DIOP', 'MADIOP', '709718173', 'Mbour', 'etudiant', 'Aucun témoignage enregistréAucun témoignage enregistréAucun témoignage enregistré', '2026-02-02 12:19:00', '2026-02-02 13:53:28'),
-(9, 14, 'DIOP', 'MADIOP', '709718173', 'Mbour', 'etudiant', 'Cette \"expiration de session\" est uniquement cote client (JavaScript) et ne detruit pas la session PHP reelle', '2026-02-02 13:28:00', '2026-02-02 13:47:03'),
-(19, 16, 'Diouf', 'Issa', '709718173', 'Touba Toul', 'personnel', 'uiuytgfdvvhjk', '2026-02-16 23:59:00', '2026-02-16 23:28:37');
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -443,7 +431,7 @@ CREATE TABLE IF NOT EXISTS `uscoud_pv_utilisateurs` (
 --
 
 INSERT INTO `uscoud_pv_utilisateurs` (`id`, `matricule`, `nom`, `prenoms`, `email`, `telephone`, `role`, `statut`, `mot_de_passe`, `derniere_connexion`, `created_at`, `updated_at`, `doit_changer_mdp`) VALUES
-(1, 'ADMIN001', 'Administrateur', 'Système', 'admin@uscoud.sn', '770000000', 'admin', 'actif', '$2y$10$tiI9wZi6DHfg7kpzjYqSkegz6nn5B/FLnPxkAUUJ.TYnAMqYky7ES', '2026-02-20 20:05:03', '2026-01-06 10:19:51', '2026-02-20 20:05:03', 0);
+(1, 'ADMIN001', 'Administrateur', 'Système', 'admin@uscoud.sn', '770000000', 'admin', 'actif', '$2y$10$tiI9wZi6DHfg7kpzjYqSkegz6nn5B/FLnPxkAUUJ.TYnAMqYky7ES', '2026-02-28 05:57:07', '2026-01-06 10:19:51', '2026-02-28 05:57:07', 0);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
