@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Script pour la gestion des PV Faux avec base de données
  */
 
@@ -604,6 +604,15 @@ function savePV() {
         showError('Veuillez saisir le numéro de la pièce sélectionnée');
         return;
     }
+    const phoneRegex = /^(7[0-9]{8}|33[0-9]{7})$/;
+    if (!phoneRegex.test(data.telephone7)) {
+        showError('Le téléphone principal doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)');
+        return;
+    }
+    if (data.telephoneResistant && !phoneRegex.test(data.telephoneResistant)) {
+        showError('Le téléphone résident doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)');
+        return;
+    }
 
     var formData = new FormData();
     formData.append('action', 'create');
@@ -683,6 +692,15 @@ function updatePV() {
         showError('Veuillez saisir le numéro de la pièce sélectionnée');
         return;
     }
+    const phoneRegex = /^(7[0-9]{8}|33[0-9]{7})$/;
+    if (!phoneRegex.test(data.telephone7)) {
+        showError('Le téléphone principal doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)');
+        return;
+    }
+    if (data.telephoneResistant && !phoneRegex.test(data.telephoneResistant)) {
+        showError('Le téléphone résident doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)');
+        return;
+    }
 
     window.updatePvData = data;
     document.getElementById('updatePvNumber').textContent = data.id;
@@ -744,7 +762,7 @@ function printPV() {
 
     var printWindow = window.open('', '_blank');
     printWindow.document.write('<html><head><title>Impression PV - USCOUD</title>');
-    printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">');
+    printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">');
     printWindow.document.write('<style>body { padding: 20px; font-family: Arial, sans-serif; } .card { margin-bottom: 15px; } @media print { .no-print { display: none; } }</style>');
     printWindow.document.write('</head><body>');
     printWindow.document.write('<h2 class="text-center mb-4">Procès-Verbal - Faux et Usage de Faux</h2>');
@@ -843,3 +861,10 @@ function showSuccess(message) {
         }
     }, 4000);
 }
+
+// Bloquer la saisie de caractères non numériques dans tous les champs téléphone
+document.addEventListener('input', function(e) {
+    if (e.target.type === 'tel') {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    }
+});

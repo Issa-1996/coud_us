@@ -645,7 +645,7 @@ function validateUtilisateurForm(data) {
     // Validation du téléphone si fourni
     if (data.telephone && data.telephone.trim() !== '') {
         if (!isValidPhone(data.telephone)) {
-            errors.push('Le numéro de téléphone doit contenir exactement 9 chiffres');
+            errors.push('Le téléphone doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)');
         }
     }
     
@@ -740,7 +740,7 @@ function isValidEmail(email) {
 }
 
 function isValidPhone(phone) {
-    return /^[0-9]{9}$/.test(phone);
+    return /^(7[0-9]{8}|33[0-9]{7})$/.test(phone);
 }
 
 function getRoleColor(role) {
@@ -848,3 +848,10 @@ function showLoading() {
 function hideLoading() {
     // Le chargement sera masqué lors de la mise à jour du tableau
 }
+
+// Bloquer la saisie de caractères non numériques dans tous les champs téléphone
+document.addEventListener('input', function(e) {
+    if (e.target.type === 'tel') {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    }
+});

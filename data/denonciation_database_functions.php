@@ -440,8 +440,8 @@ function validatePVDenonciation($data) {
         $errors[] = 'Le prénom du dénonciateur doit contenir au moins 2 caractères';
     }
     
-    if (!empty($data['denonciateur_telephone']) && !preg_match('/^7[0-9]{8}$/', $data['denonciateur_telephone'])) {
-        $errors[] = 'Le format du téléphone du dénonciateur est invalide (ex: 712345678)';
+    if (!empty($data['denonciateur_telephone']) && !preg_match('/^(7[0-9]{8}|33[0-9]{7})$/', $data['denonciateur_telephone'])) {
+        $errors[] = 'Le téléphone doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)';
     }
     
     if (!empty($data['denonciateur_email']) && !filter_var($data['denonciateur_email'], FILTER_VALIDATE_EMAIL)) {

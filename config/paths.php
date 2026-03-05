@@ -4,10 +4,8 @@
  * Gestion des URLs et redirections
  */
 
-// Configuration API UCAD
-define('API_UCAD_BASE_URL', 'https://coudservice.ucad.sn/api');
-define('API_UCAD_USERNAME', 'coud@ucad.sn');
-define('API_UCAD_PASSWORD', 'dhHNg4VmpfZYR6Q');
+// Credentials API (fichier protégé, hors dépôt Git)
+require_once __DIR__ . '/credentials.php';
 
 // Détection automatique de l'environnement
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';

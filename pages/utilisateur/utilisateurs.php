@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Vérification de session
 session_start();
 require_once __DIR__ . '/../../config/paths.php';
@@ -201,11 +201,11 @@ $bannerText = "Gestion des Utilisateurs - USCOUD";
     <title>Gestion des Utilisateurs - USCOUD</title>
     
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
     <!-- Styles COUD'MAINT -->
     <link rel="stylesheet" href="../../assets/css/common.css">
     <link rel="stylesheet" href="../../assets/css/utilisateurs.css">
@@ -382,8 +382,8 @@ $bannerText = "Gestion des Utilisateurs - USCOUD";
                                 <label for="addTelephone" class="form-label">
                                     <i class="fas fa-phone me-1"></i>Téléphone
                                 </label>
-                                <input type="tel" class="form-control" id="addTelephone" name="telephone" placeholder="770000000" maxlength="9" pattern="[0-9]{9}" title="Le numéro de téléphone doit contenir exactement 9 chiffres">
-                                <small class="text-muted">9 chiffres uniquement (ex: 770000000)</small>
+                                <input type="tel" class="form-control" id="addTelephone" name="telephone" placeholder="771234567" maxlength="9" pattern="(7[0-9]{8}|33[0-9]{7})" title="Numéro sénégalais: mobile (7X XXX XX XX) ou fixe (33 XXX XX XX)">
+                                <small class="text-muted">Ex: 771234567 (mobile) ou 331234567 (fixe)</small>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="addRole" class="form-label">
@@ -474,8 +474,8 @@ $bannerText = "Gestion des Utilisateurs - USCOUD";
                                 <label for="editTelephone" class="form-label">
                                     <i class="fas fa-phone me-1"></i>Téléphone
                                 </label>
-                                <input type="tel" class="form-control" id="editTelephone" name="telephone" maxlength="9" pattern="[0-9]{9}" title="Le numéro de téléphone doit contenir exactement 9 chiffres">
-                                <small class="text-muted">9 chiffres uniquement (ex: 770000000)</small>
+                                <input type="tel" class="form-control" id="editTelephone" name="telephone" maxlength="9" pattern="(7[0-9]{8}|33[0-9]{7})" title="Numéro sénégalais: mobile (7X XXX XX XX) ou fixe (33 XXX XX XX)">
+                                <small class="text-muted">Ex: 771234567 (mobile) ou 331234567 (fixe)</small>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="editRole" class="form-label">
@@ -672,7 +672,7 @@ $bannerText = "Gestion des Utilisateurs - USCOUD";
     </div>
 
     <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script src="../../assets/js/utilisateurs-database.js"></script>
     
     <!-- Passer les données PHP au JavaScript -->

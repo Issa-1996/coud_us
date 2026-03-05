@@ -289,13 +289,13 @@ function validatePVFaux($data) {
     }
     
     if (empty($data['telephone7'])) {
-        $errors[] = 'Le téléphone (N° 7...) est requis';
-    } elseif (!preg_match('/^7[0-9]{8}$/', $data['telephone7'])) {
-        $errors[] = 'Le format du téléphone (N° 7...) est invalide (ex: 771234567 ou 712345678)';
+        $errors[] = 'Le téléphone principal est requis';
+    } elseif (!preg_match('/^(7[0-9]{8}|33[0-9]{7})$/', $data['telephone7'])) {
+        $errors[] = 'Le téléphone principal doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)';
     }
-    
-    if (!empty($data['telephoneResistant']) && !preg_match('/^[0-9]{9}$/', $data['telephoneResistant'])) {
-        $errors[] = 'Le format du téléphone résistant est invalide (9 chiffres)';
+
+    if (!empty($data['telephoneResistant']) && !preg_match('/^(7[0-9]{8}|33[0-9]{7})$/', $data['telephoneResistant'])) {
+        $errors[] = 'Le téléphone résident doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)';
     }
     
     if (empty($data['typeDocument'])) {

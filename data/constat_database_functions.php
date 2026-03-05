@@ -686,10 +686,8 @@ function validatePVConstat($data) {
         $errors[] = 'Le campus/résidence est requis';
     }
     
-    if (empty($data['telephone'])) {
-        // Le téléphone n'est plus obligatoire
-    } elseif (!preg_match('/^[0-9]{9,15}$/', $data['telephone'])) {
-        $errors[] = 'Le format du téléphone est invalide (ex: 771234567 ou 701234567)';
+    if (!empty($data['telephone']) && !preg_match('/^(7[0-9]{8}|33[0-9]{7})$/', $data['telephone'])) {
+        $errors[] = 'Le téléphone doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)';
     }
     
     if (empty($data['typeIncident'])) {
