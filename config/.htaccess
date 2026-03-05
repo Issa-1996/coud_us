@@ -1,0 +1,5 @@
+# Bloquer tout accès direct aux fichiers de configuration
+<FilesMatch "\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

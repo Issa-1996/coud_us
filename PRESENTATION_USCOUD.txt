@@ -1,0 +1,680 @@
+================================================================================
+       PRÉSENTATION USCOUD SÉCURITÉ - MODULE DE GESTION DES PV
+       Centre des Œuvres Universitaires de Dakar (COUD)
+       Université Cheikh Anta Diop de Dakar
+================================================================================
+
+
+════════════════════════════════════════════════════════
+  SLIDE 1 — PAGE DE TITRE
+════════════════════════════════════════════════════════
+
+  TITRE   : USCOUD SÉCURITÉ
+  SOUS-TITRE : Système de Gestion des Procès-Verbaux
+             Centre des Œuvres Universitaires de Dakar
+
+  Éléments visuels :
+    - Logo USCOUD / COUD
+    - Fond bleu institutionnel (#3777B0)
+    - Année : 2026
+
+
+════════════════════════════════════════════════════════
+  SLIDE 2 — SOMMAIRE
+════════════════════════════════════════════════════════
+
+  1. Présentation générale
+  2. Architecture technique
+  3. Authentification & Sécurité
+  4. Tableau de bord (commun à tous)
+  5. Profil Administrateur
+  6. Profil Superviseur
+  7. Profil Agent
+  8. Profil Opérateur
+  9. Types de PV
+       - PV Faux et Usage de Faux
+       - PV Constat d'Incident
+       - PV Dénonciation
+  10. Journal d'audit
+  11. Récapitulatif des droits
+  12. Conclusion & Perspectives
+
+
+════════════════════════════════════════════════════════
+  SLIDE 3 — PRÉSENTATION GÉNÉRALE
+════════════════════════════════════════════════════════
+
+  TITRE : Qu'est-ce qu'USCOUD Sécurité ?
+
+  Définition :
+    Application web dédiée à la gestion des incidents de sécurité
+    sur les campus universitaires du COUD à Dakar.
+
+  Objectifs :
+    ▸ Centraliser et tracer tous les incidents sur les campus
+    ▸ Produire des procès-verbaux officiels (Faux, Constat, Dénonciation)
+    ▸ Faciliter le suivi des dossiers par les agents de sécurité
+    ▸ Assurer la traçabilité de toutes les actions (audit trail)
+
+  Périmètre :
+    ▸ Tous les campus COUD (Dakar, Ziguinchor, etc.)
+    ▸ Personnel de sécurité USCOUD
+    ▸ Intégration avec la base étudiants UCAD
+
+  Chiffres clés :
+    ▸ 3 types de PV gérés
+    ▸ 4 rôles utilisateurs
+    ▸ 100% des actions tracées et auditées
+
+
+════════════════════════════════════════════════════════
+  SLIDE 4 — ARCHITECTURE TECHNIQUE
+════════════════════════════════════════════════════════
+
+  TITRE : Architecture Technique
+
+  Stack technologique :
+
+  ┌─────────────────────────────────────────────────────┐
+  │  FRONTEND                                           │
+  │    • Bootstrap 5.3    (interface responsive)        │
+  │    • Bootstrap Icons 1.11                           │
+  │    • Chart.js 4.4     (graphiques dashboard)        │
+  │    • JavaScript       (formulaires dynamiques)      │
+  ├─────────────────────────────────────────────────────┤
+  │  BACKEND                                            │
+  │    • PHP 8.2+         (serveur applicatif)          │
+  │    • MySQLi           (accès base de données)       │
+  │    • Sessions PHP     (gestion authentification)    │
+  │    • cURL             (API externe UCAD)            │
+  ├─────────────────────────────────────────────────────┤
+  │  BASE DE DONNÉES                                    │
+  │    • uscoud_db        (données sécurité)            │
+  │    • bdcodif2         (étudiants résidents COUD)    │
+  ├─────────────────────────────────────────────────────┤
+  │  SERVEUR                                            │
+  │    • Apache / WAMP    (Windows)                     │
+  │    • .htaccess        (réécriture d'URL)            │
+  └─────────────────────────────────────────────────────┘
+
+  Architecture MVC-like :
+    config/ → Chemins, credentials API
+    data/   → Accès base de données (prepared statements)
+    models/ → Logique métier
+    pages/  → Interface utilisateur (vues)
+
+
+════════════════════════════════════════════════════════
+  SLIDE 5 — AUTHENTIFICATION
+════════════════════════════════════════════════════════
+
+  TITRE : Authentification & Gestion des Sessions
+
+  Processus de connexion :
+
+    [1] L'utilisateur saisit son email et son mot de passe
+        → Page : login.php
+
+    [2] Vérification en base de données
+        → Email unique dans uscoud_pv_utilisateurs
+        → Mot de passe vérifié par password_verify() (bcrypt)
+
+    [3] Vérification du statut du compte
+        → Compte actif/inactif
+
+    [4] Si première connexion (doit_changer_mdp = OUI)
+        → Redirection obligatoire vers changement de mot de passe
+        → Mot de passe par défaut "COUD" à remplacer
+
+    [5] Session créée avec :
+        → Identifiant utilisateur
+        → Nom & Prénoms
+        → Email
+        → Rôle (admin / superviseur / agent / opérateur)
+
+  Règles de sécurité :
+    ▸ Mots de passe hachés (bcrypt - standard PHP)
+    ▸ Nouvelle connexion : mot de passe obligatoirement changé
+    ▸ Minimum 6 caractères pour le mot de passe
+    ▸ Impossible de conserver "COUD" comme mot de passe
+
+
+════════════════════════════════════════════════════════
+  SLIDE 6 — TABLEAU DE BORD (commun à tous les profils)
+════════════════════════════════════════════════════════
+
+  TITRE : Tableau de Bord - Vue d'ensemble
+
+  Accessible à : Tous les utilisateurs connectés
+
+  Contenu :
+
+  ┌───────────────────────────────────────────────────┐
+  │  BANNIÈRE PRINCIPALE                              │
+  │    Date et heure en temps réel                   │
+  │    Message de bienvenue personnalisé              │
+  ├───────────────────────────────────────────────────┤
+  │  CARTES DE STATISTIQUES (4)                       │
+  │    📋 Total PV créés                             │
+  │    🔄 PV En cours de traitement                  │
+  │    ✅ PV Traités                                 │
+  │    📅 PV créés ce mois-ci                        │
+  ├───────────────────────────────────────────────────┤
+  │  LISTES DES DERNIERS PV (5 par type)              │
+  │    → Derniers PV Faux                            │
+  │    → Derniers PV Constat                         │
+  │    → Dernières Dénonciations                     │
+  ├───────────────────────────────────────────────────┤
+  │  GRAPHIQUES (4)                                   │
+  │    📊 Répartition par type de PV (barres)        │
+  │    🥧 Statuts des PV (camembert)                 │
+  │    📈 Évolution mensuelle (courbe)               │
+  │    🍩 Types d'incidents (donut)                  │
+  ├───────────────────────────────────────────────────┤
+  │  BOUTONS D'ACTION RAPIDE                          │
+  │    → Créer PV Faux                               │
+  │    → Créer PV Constat                            │
+  │    → Créer Dénonciation                          │
+  └───────────────────────────────────────────────────┘
+
+  Note : Les boutons "Créer" sont masqués pour les Opérateurs
+
+
+════════════════════════════════════════════════════════
+  SLIDE 7 — PROFIL ADMINISTRATEUR (1/2)
+════════════════════════════════════════════════════════
+
+  TITRE : Profil Administrateur — Accès Complet
+
+  Rôle : Gestionnaire principal du système USCOUD Sécurité
+
+  Menu disponible :
+    🏠 Accueil (Dashboard)
+    📄 Faux et Usage de Faux
+    📋 Constat d'Incident
+    📢 Dénonciation
+    🔍 Recherche (admin uniquement)
+    👥 Utilisateurs (admin uniquement)
+    🔒 Changer mot de passe
+    🚪 Déconnexion
+
+  Droits sur les PV :
+    ✅ Créer tous les types de PV (Faux, Constat, Dénonciation)
+    ✅ Consulter tous les PV
+    ✅ Modifier tous les PV
+    ✅ Supprimer des PV
+    ✅ Changer le statut de tout PV
+
+  Statuts PV qu'il peut attribuer :
+    • En cours   → En traitement actif
+    • Traité     → Dossier clôturé
+    • Archivé    → Archivage définitif
+
+
+════════════════════════════════════════════════════════
+  SLIDE 8 — PROFIL ADMINISTRATEUR (2/2)
+════════════════════════════════════════════════════════
+
+  TITRE : Profil Administrateur — Gestion des Utilisateurs & Recherche
+
+  MODULE UTILISATEURS :
+    ✅ Créer un nouvel utilisateur (avec rôle au choix)
+    ✅ Modifier un utilisateur (nom, email, téléphone, rôle, statut)
+    ✅ Activer / Désactiver un compte
+    ✅ Réinitialiser le mot de passe → repassage à "COUD"
+    ✅ Supprimer un utilisateur (si aucun PV associé)
+    ✅ Exporter la liste des utilisateurs en CSV
+    ✅ Voir les statistiques par rôle
+
+  Champs de création d'un utilisateur :
+    → Matricule (unique)        → Prénom(s)
+    → Nom                       → Email (unique)
+    → Téléphone (format SN)     → Rôle
+    → Statut (actif par défaut)
+
+  MODULE RECHERCHE :
+    ✅ Rechercher un étudiant dans la base résidents COUD (bdcodif2)
+    ✅ Interroger l'API UCAD pour tout étudiant de l'université
+    ✅ Consulter les infractions d'un étudiant (tous types de PV)
+    ✅ Vue unifiée des résultats : numéro PV, type, statut, date
+
+  ⚠ Ces deux modules (Recherche & Utilisateurs) sont
+    EXCLUSIVEMENT réservés à l'Administrateur.
+
+
+════════════════════════════════════════════════════════
+  SLIDE 9 — PROFIL SUPERVISEUR
+════════════════════════════════════════════════════════
+
+  TITRE : Profil Superviseur — Suivi et Gestion des PV
+
+  Rôle : Supervise les activités des agents et gère les dossiers
+
+  Menu disponible :
+    🏠 Accueil (Dashboard)
+    📄 Faux et Usage de Faux
+    📋 Constat d'Incident
+    📢 Dénonciation
+    🔒 Changer mot de passe
+    🚪 Déconnexion
+
+    ✗ Recherche       (réservé admin)
+    ✗ Utilisateurs    (réservé admin)
+
+  Droits sur les PV :
+    ✅ Créer tous les types de PV
+    ✅ Consulter tous les PV (tous agents)
+    ✅ Modifier ses propres PV
+    ✅ Changer le statut des PV
+    ✅ Uploader des fichiers (empreintes, preuves)
+    ✗ Supprimer des PV
+    ✗ Accéder à la gestion des utilisateurs
+    ✗ Rechercher dans les bases COUD/UCAD
+
+  Ce profil est idéal pour :
+    → Les responsables de section ou chefs d'équipe sécurité
+    → La supervision de plusieurs agents
+    → Le suivi des dossiers en cours
+
+
+════════════════════════════════════════════════════════
+  SLIDE 10 — PROFIL AGENT
+════════════════════════════════════════════════════════
+
+  TITRE : Profil Agent — Création et Saisie des PV
+
+  Rôle : Agent de terrain — saisit les PV au quotidien
+
+  Menu disponible :
+    🏠 Accueil (Dashboard)
+    📄 Faux et Usage de Faux
+    📋 Constat d'Incident
+    📢 Dénonciation
+    🔒 Changer mot de passe
+    🚪 Déconnexion
+
+  Droits sur les PV :
+    ✅ Créer tous les types de PV
+    ✅ Consulter tous les PV (lecture)
+    ✅ Modifier ses propres PV
+    ✅ Changer le statut de ses PV
+    ✅ Uploader des fichiers (empreintes, preuves)
+    ✗ Modifier les PV d'un autre agent
+    ✗ Supprimer des PV
+    ✗ Accéder à la gestion des utilisateurs
+    ✗ Rechercher dans les bases COUD/UCAD
+
+  Ce profil est idéal pour :
+    → Les agents de sécurité sur le terrain
+    → Les agents d'accueil et de contrôle
+    → Tout personnel chargé de saisir les incidents
+
+  Workflow typique :
+    (1) Constate un incident/faux document
+    (2) Ouvre l'application et crée un PV
+    (3) Remplit le formulaire et soumet
+    (4) Le Superviseur ou Admin assure le suivi
+
+
+════════════════════════════════════════════════════════
+  SLIDE 11 — PROFIL OPÉRATEUR
+════════════════════════════════════════════════════════
+
+  TITRE : Profil Opérateur — Consultation Uniquement
+
+  Rôle : Utilisateur en lecture seule — consulte sans agir
+
+  Menu disponible :
+    🏠 Accueil (Dashboard - lecture seule)
+    📄 Faux et Usage de Faux (liste uniquement)
+    📋 Constat d'Incident (liste uniquement)
+    📢 Dénonciation (liste uniquement)
+    🔒 Changer mot de passe
+    🚪 Déconnexion
+
+  Droits sur les PV :
+    ✅ Voir le tableau de bord et les statistiques
+    ✅ Consulter la liste des PV (Faux, Constat, Dénonciation)
+    ✅ Voir le détail d'un PV
+    ✅ Changer son propre mot de passe
+    ✗ Créer un PV (BLOQUÉ côté serveur)
+    ✗ Modifier un PV
+    ✗ Supprimer un PV
+    ✗ Gérer les utilisateurs
+    ✗ Rechercher des étudiants
+    ✗ Uploader des fichiers
+
+  ⚠ Note technique :
+    La restriction de création est appliquée CÔTÉ SERVEUR,
+    pas seulement côté interface. Même en forçant la requête,
+    le système retourne une erreur de permission.
+
+  Ce profil est idéal pour :
+    → Les autorités de tutelle (consultation des rapports)
+    → Les partenaires institutionnels
+    → Les auditeurs internes
+
+
+════════════════════════════════════════════════════════
+  SLIDE 12 — TYPE DE PV : FAUX ET USAGE DE FAUX
+════════════════════════════════════════════════════════
+
+  TITRE : PV Faux et Usage de Faux
+
+  Objectif : Documenter les cas de faux documents sur les campus
+
+  Numérotation automatique : PV-FAUX-YYYYMMDD-NNN
+  (ex: PV-FAUX-20260304-001)
+
+  Champs du formulaire :
+  ┌────────────────────────────────────────────────────┐
+  │  Identité de la personne interpellée               │
+  │    • Carte étudiant (numéro)                       │
+  │    • Nom & Prénoms                                 │
+  │    • Campus concerné                               │
+  │    • Téléphone principal                           │
+  │    • Téléphone résistant                           │
+  ├────────────────────────────────────────────────────┤
+  │  Détails du faux document                          │
+  │    • Type de document :                            │
+  │        - Carte étudiant                            │
+  │        - Carte Nationale d'Identité                │
+  │        - Passeport                                 │
+  │        - Permis de conduire                        │
+  │        - Autre                                     │
+  │    • Identité faux (description)                   │
+  │    • Empreinte digitale (photo uploadée)           │
+  ├────────────────────────────────────────────────────┤
+  │  Rapport de l'agent                                │
+  │    • Charge d'enquête                              │
+  │    • Actions de l'agent                            │
+  │    • Observations                                  │
+  └────────────────────────────────────────────────────┘
+
+  Statuts possibles :
+    🔵 En cours   →   ✅ Traité   →   📦 Archivé
+
+  Pièces jointes : Photo de l'empreinte (jpg/png, max 5 Mo)
+
+
+════════════════════════════════════════════════════════
+  SLIDE 13 — TYPE DE PV : CONSTAT D'INCIDENT
+════════════════════════════════════════════════════════
+
+  TITRE : PV Constat d'Incident
+
+  Objectif : Documenter officiellement un incident survenu sur campus
+
+  Numérotation automatique : PV-CONSTAT-YYYYMMDD-NNN
+
+  Champs du formulaire :
+  ┌────────────────────────────────────────────────────┐
+  │  Identité de la personne concernée                 │
+  │    • Carte étudiant, Nom, Campus, Téléphone        │
+  ├────────────────────────────────────────────────────┤
+  │  Détails de l'incident                             │
+  │    • Type d'incident :                             │
+  │        Vol / Agression / Dégradation               │
+  │        Perte / Incendie / Autre                    │
+  │    • Description détaillée                         │
+  │    • Lieu de l'incident                            │
+  │    • Date et heure de l'incident                   │
+  ├────────────────────────────────────────────────────┤
+  │  Parties prenantes (sections dynamiques)           │
+  │    👤 Blessés :                                    │
+  │        Nom, type de blessure, évacuation, hôpital │
+  │    ⚔ Assaillants :                               │
+  │        Nom, description physique, signes distinctifs│
+  │    🏚 Dommages matériels :                        │
+  │        Type, description, valeur estimée          │
+  │    👁 Auditions / Témoignages :                   │
+  │        Nom témoin, téléphone, déclaration         │
+  ├────────────────────────────────────────────────────┤
+  │  Suites données                                    │
+  │    • Suites blessés / Suites dommages              │
+  │    • Observations générales                        │
+  └────────────────────────────────────────────────────┘
+
+  Statuts possibles :
+    🔵 En cours   →   ✅ Traité   →   📦 Archivé
+
+  Note : Les sections Blessés, Assaillants, Dommages, Témoins
+  sont des sections dynamiques (ajout de lignes à volonté)
+
+
+════════════════════════════════════════════════════════
+  SLIDE 14 — TYPE DE PV : DÉNONCIATION
+════════════════════════════════════════════════════════
+
+  TITRE : PV Dénonciation
+
+  Objectif : Recueillir et traiter les signalements d'infractions
+
+  Numérotation automatique : PV-DENONCIATION-YYYYMMDD-NNN
+
+  Champs du formulaire :
+  ┌────────────────────────────────────────────────────┐
+  │  Dénonciateur                                      │
+  │    • Nom & Prénoms                                 │
+  │    • Téléphone                                     │
+  │    • Email                                         │
+  │    • Adresse                                       │
+  │    • ☑ Dénonciation anonyme (option disponible)   │
+  ├────────────────────────────────────────────────────┤
+  │  Étudiant mis en cause (optionnel)                 │
+  │    • Lien vers l'étudiant si connu                 │
+  ├────────────────────────────────────────────────────┤
+  │  Nature de la dénonciation                         │
+  │    • Type :                                        │
+  │        Violence / Harcèlement / Diffamation        │
+  │        Vol / Fraude / Autre                        │
+  │    • Motif de la dénonciation                      │
+  │    • Description complète                          │
+  │    • Date des faits                                │
+  │    • Date de la dénonciation                       │
+  │    • Lieu des faits                                │
+  ├────────────────────────────────────────────────────┤
+  │  Preuves (pièces jointes multiples)                │
+  │    • Type de preuve (document, photo, vidéo…)      │
+  │    • Description de la preuve                      │
+  │    • Fichier uploadé (jpg/png/pdf, max 5 Mo)       │
+  └────────────────────────────────────────────────────┘
+
+  Statuts possibles (4 étapes) :
+    ⏳ En attente  →  🔵 En cours  →  ✅ Traité  →  📦 Archivé
+
+  Particularité : Seul type de PV avec 4 statuts (inclut "En attente")
+  Supporte l'anonymat complet du dénonciateur
+
+
+════════════════════════════════════════════════════════
+  SLIDE 15 — JOURNAL D'AUDIT
+════════════════════════════════════════════════════════
+
+  TITRE : Traçabilité & Journal d'Audit
+
+  Principe :
+    Chaque action effectuée dans le système est
+    automatiquement enregistrée dans un journal d'audit.
+
+  Ce qui est enregistré :
+  ┌────────────────────────────────────────────────────┐
+  │  POUR CHAQUE OPÉRATION :                           │
+  │    • Qui ?      → Identifiant de l'utilisateur     │
+  │    • Quoi ?     → Type d'action (Créer/Modifier/   │
+  │                              Supprimer/Consulter)  │
+  │    • Sur quoi ? → Table et enregistrement concerné │
+  │    • Quand ?    → Date et heure précises           │
+  │    • D'où ?     → Adresse IP de connexion          │
+  │    • Comment ?  → Navigateur utilisé (User-Agent)  │
+  │    • Avant ?    → Valeurs avant modification (JSON)│
+  │    • Après ?    → Valeurs après modification (JSON)│
+  └────────────────────────────────────────────────────┘
+
+  Avantages :
+    ✅ Responsabilité claire de chaque action
+    ✅ Impossible de nier une action effectuée
+    ✅ Aide à la résolution des litiges
+    ✅ Conforme aux exigences de gouvernance institutionnelle
+    ✅ Permet la reconstitution de l'historique complet d'un PV
+
+  Aucune action n'échappe au journal d'audit.
+
+
+════════════════════════════════════════════════════════
+  SLIDE 16 — TABLEAU RÉCAPITULATIF DES DROITS
+════════════════════════════════════════════════════════
+
+  TITRE : Récapitulatif des Droits par Profil
+
+  ╔═══════════════════════════════╦══════╦═══════════╦═══════╦══════════╗
+  ║  FONCTIONNALITÉ               ║ ADM  ║   SUPV    ║ AGNT  ║  OPÉR   ║
+  ╠═══════════════════════════════╬══════╬═══════════╬═══════╬══════════╣
+  ║  Tableau de bord              ║  ✅  ║    ✅     ║  ✅   ║   ✅    ║
+  ╠═══════════════════════════════╬══════╬═══════════╬═══════╬══════════╣
+  ║  Créer PV Faux                ║  ✅  ║    ✅     ║  ✅   ║   ✗     ║
+  ║  Créer PV Constat             ║  ✅  ║    ✅     ║  ✅   ║   ✗     ║
+  ║  Créer PV Dénonciation        ║  ✅  ║    ✅     ║  ✅   ║   ✗     ║
+  ╠═══════════════════════════════╬══════╬═══════════╬═══════╬══════════╣
+  ║  Consulter tous les PV        ║  ✅  ║    ✅     ║  ✅   ║   ✅    ║
+  ║  Modifier ses PV              ║  ✅  ║    ✅     ║  ✅   ║   ✗     ║
+  ║  Modifier tous les PV        ║  ✅  ║    ✗      ║  ✗    ║   ✗     ║
+  ║  Supprimer PV                 ║  ✅  ║    ✗      ║  ✗    ║   ✗     ║
+  ╠═══════════════════════════════╬══════╬═══════════╬═══════╬══════════╣
+  ║  Gestion des utilisateurs     ║  ✅  ║    ✗      ║  ✗    ║   ✗     ║
+  ║  Réinitialiser mots de passe  ║  ✅  ║    ✗      ║  ✗    ║   ✗     ║
+  ║  Activer/Désactiver comptes   ║  ✅  ║    ✗      ║  ✗    ║   ✗     ║
+  ║  Exporter liste utilisateurs  ║  ✅  ║    ✗      ║  ✗    ║   ✗     ║
+  ╠═══════════════════════════════╬══════╬═══════════╬═══════╬══════════╣
+  ║  Recherche étudiants (COUD)   ║  ✅  ║    ✗      ║  ✗    ║   ✗     ║
+  ║  Recherche étudiants (UCAD)   ║  ✅  ║    ✗      ║  ✗    ║   ✗     ║
+  ║  Consultation infractions     ║  ✅  ║    ✗      ║  ✗    ║   ✗     ║
+  ╠═══════════════════════════════╬══════╬═══════════╬═══════╬══════════╣
+  ║  Changer son mot de passe     ║  ✅  ║    ✅     ║  ✅   ║   ✅    ║
+  ║  Upload fichiers (empreintes) ║  ✅  ║    ✅     ║  ✅   ║   ✗     ║
+  ╚═══════════════════════════════╩══════╩═══════════╩═══════╩══════════╝
+
+  ADM = Administrateur | SUPV = Superviseur | AGNT = Agent | OPÉR = Opérateur
+
+
+════════════════════════════════════════════════════════
+  SLIDE 17 — SÉCURITÉ DU SYSTÈME
+════════════════════════════════════════════════════════
+
+  TITRE : Mesures de Sécurité Implémentées
+
+  ✅ PROTECTIONS EN PLACE
+
+    🔐 Authentification
+       • Mots de passe chiffrés (bcrypt — standard industriel)
+       • Changement de mot de passe obligatoire à la première connexion
+       • Comptes désactivables instantanément
+
+    🛡 Protection des données
+       • Requêtes SQL préparées (protection injection SQL)
+       • Échappement des données affichées (protection XSS)
+       • Dossier de configuration protégé par .htaccess
+
+    👁 Traçabilité
+       • Journal d'audit complet (IP, user-agent, avant/après)
+       • Horodatage de toutes les actions
+
+    🔑 Contrôle d'accès
+       • Restrictions appliquées côté serveur (non contournables)
+       • Vérification du rôle à chaque requête
+       • Session vérifiée sur chaque page
+
+
+════════════════════════════════════════════════════════
+  SLIDE 18 — FLUX DE TRAVAIL TYPIQUE
+════════════════════════════════════════════════════════
+
+  TITRE : Workflow — De l'Incident au PV Traité
+
+  ┌────────────────────────────────────────────────────┐
+  │  (1) DÉTECTION DE L'INCIDENT                       │
+  │      Agent de terrain constate un incident/faux    │
+  └──────────────────────┬─────────────────────────────┘
+                         │
+  ┌──────────────────────▼─────────────────────────────┐
+  │  (2) SAISIE DU PV                                  │
+  │      L'Agent se connecte et crée le PV approprié   │
+  │      • Statut initial : En cours / En attente       │
+  └──────────────────────┬─────────────────────────────┘
+                         │
+  ┌──────────────────────▼─────────────────────────────┐
+  │  (3) SUIVI PAR LE SUPERVISEUR                      │
+  │      Vérification du dossier, complétion si besoin │
+  │      Coordination des suites à donner              │
+  └──────────────────────┬─────────────────────────────┘
+                         │
+  ┌──────────────────────▼─────────────────────────────┐
+  │  (4) CLÔTURE PAR L'ADMIN OU SUPERVISEUR            │
+  │      • Statut → Traité                             │
+  │      • Archivage du dossier                        │
+  └──────────────────────┬─────────────────────────────┘
+                         │
+  ┌──────────────────────▼─────────────────────────────┐
+  │  (5) CONSULTATION (OPÉRATEUR)                      │
+  │      Accès en lecture pour bilan ou reporting       │
+  └────────────────────────────────────────────────────┘
+
+  Chaque étape est tracée dans le journal d'audit.
+
+
+════════════════════════════════════════════════════════
+  SLIDE 19 — CONCLUSION & PERSPECTIVES
+════════════════════════════════════════════════════════
+
+  TITRE : Conclusion & Perspectives
+
+  BILAN :
+    ✅ Application opérationnelle et structurée
+    ✅ 3 types de PV couvrant les principaux incidents campus
+    ✅ 4 profils adaptés aux réalités organisationnelles du COUD
+    ✅ Sécurité renforcée (bcrypt, prepared statements, audit)
+    ✅ Interface responsive (mobile, tablette, desktop)
+    ✅ Intégration base étudiants UCAD et COUD
+
+  AMÉLIORATIONS PRÉVUES :
+    🔜 Génération automatique de PDF pour chaque PV
+    🔜 Notifications par email (création/mise à jour de PV)
+    🔜 Filtres avancés et recherche par date/statut
+    🔜 Tableaux de bord analytiques avancés
+    🔜 Application mobile (version PWA)
+    🔜 Exportation des rapports statistiques
+
+  MESSAGE CLÉ :
+    USCOUD Sécurité répond au besoin de moderniser et centraliser
+    la gestion des incidents sur les campus universitaires du COUD,
+    en garantissant rigueur, traçabilité et accessibilité.
+
+
+════════════════════════════════════════════════════════
+  SLIDE 20 — MERCI / QUESTIONS
+════════════════════════════════════════════════════════
+
+  TITRE : Merci pour votre attention
+
+  Contact & Support :
+    🏛 Centre des Œuvres Universitaires de Dakar (COUD)
+    📍 Université Cheikh Anta Diop de Dakar
+    🌐 USCOUD Sécurité — Module 2026
+
+    Des questions ?
+
+
+================================================================================
+  FIN DU DOCUMENT — USCOUD SÉCURITÉ — PRÉSENTATION POWERPOINT
+================================================================================
+
+NOTES POUR LA MISE EN FORME POWERPOINT :
+─────────────────────────────────────────
+  • Couleur principale  : #3777B0 (bleu institutionnel COUD)
+  • Couleur secondaire  : #2c5f8d (bleu foncé)
+  • Couleur d'accentuation : #27ae60 (vert - OK), #e74c3c (rouge - NON)
+  • Police titre        : Montserrat Bold ou Calibri Bold
+  • Police corps        : Montserrat Regular ou Calibri
+  • Format suggéré      : 16:9 (1920x1080)
+  • Icônes              : Bootstrap Icons ou Font Awesome (déjà utilisés)
+  • Logo                : securite/assets/logo.png

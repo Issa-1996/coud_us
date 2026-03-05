@@ -274,11 +274,11 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Procès-Verbaux - Faux et Usage de Faux</title>
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
     <!-- Styles COUD'MAINT -->
     <link rel="stylesheet" href="../../assets/css/common.css">
     <link rel="stylesheet" href="../../assets/css/faux.css">
@@ -462,14 +462,14 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                                 <label for="addTelephone7" class="form-label">
                                     <i class="fas fa-phone me-1"></i>Téléphone (N° 7...)
                                 </label>
-                                <input type="tel" class="form-control" id="addTelephone7" placeholder="7X XXX XX XX">
+                                <input type="tel" class="form-control" id="addTelephone7" placeholder="771234567" maxlength="9" pattern="(7[0-9]{8}|33[0-9]{7})" title="Numéro sénégalais: mobile (7X XXX XX XX) ou fixe (33 XXX XX XX)">
                             </div>
                             
                             <div class="col-md-6 mb-3">
                                 <label for="addTelephoneResistant" class="form-label">
                                     <i class="fas fa-phone-alt me-1"></i>Téléphone (résident)
                                 </label>
-                                <input type="tel" class="form-control" id="addTelephoneResistant">
+                                <input type="tel" class="form-control" id="addTelephoneResistant" placeholder="771234567" maxlength="9" pattern="(7[0-9]{8}|33[0-9]{7})" title="Numéro sénégalais: mobile (7X XXX XX XX) ou fixe (33 XXX XX XX)">
                             </div>
                             
                             <div class="col-md-12 mb-3">
@@ -591,14 +591,14 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
                                 <label for="editTelephone7" class="form-label">
                                     <i class="fas fa-phone me-1"></i>Téléphone (N° 7...)
                                 </label>
-                                <input type="tel" class="form-control" id="editTelephone7">
+                                <input type="tel" class="form-control" id="editTelephone7" placeholder="771234567" maxlength="9" pattern="(7[0-9]{8}|33[0-9]{7})" title="Numéro sénégalais: mobile (7X XXX XX XX) ou fixe (33 XXX XX XX)">
                             </div>
                             
                             <div class="col-md-6 mb-3">
                                 <label for="editTelephoneResistant" class="form-label">
                                     <i class="fas fa-phone-alt me-1"></i>Téléphone (résident)
                                 </label>
-                                <input type="tel" class="form-control" id="editTelephoneResistant">
+                                <input type="tel" class="form-control" id="editTelephoneResistant" placeholder="771234567" maxlength="9" pattern="(7[0-9]{8}|33[0-9]{7})" title="Numéro sénégalais: mobile (7X XXX XX XX) ou fixe (33 XXX XX XX)">
                             </div>
                             
                             <div class="col-md-12 mb-3">
@@ -898,7 +898,7 @@ $bannerText = "Procès-Verbal: Faux et Usage de Faux - USCOUD";
     </div>
 
     <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>var USER_ROLE = '<?php echo $_SESSION["role"] ?? ""; ?>'; var USER_ID = <?php echo $_SESSION["utilisateur_id"] ?? 0; ?>;</script>
     <script src="../../assets/js/faux-database.js?v=<?php echo filemtime(__DIR__ . '/../../assets/js/faux-database.js'); ?>"></script>
     

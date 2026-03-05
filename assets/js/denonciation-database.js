@@ -489,6 +489,11 @@ function confirmUpdatePV() {
         preuves: collectPreuves('edit')
     };
 
+    if (data.denonciateur_telephone && !/^(7[0-9]{8}|33[0-9]{7})$/.test(data.denonciateur_telephone)) {
+        showAlert('Le téléphone doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)', 'danger');
+        return;
+    }
+
     fetch('denonciation.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -784,5 +789,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmEditBtn = document.getElementById('confirmEditBtn');
     if (confirmEditBtn) {
         confirmEditBtn.addEventListener('click', confirmUpdatePV);
+    }
+});
+
+// Bloquer la saisie de caractères non numériques dans tous les champs téléphone
+document.addEventListener('input', function(e) {
+    if (e.target.type === 'tel') {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
     }
 });

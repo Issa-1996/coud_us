@@ -1,6 +1,9 @@
 RewriteEngine On
 RewriteBase /campuscoud.com/securite/
 
+# Rediriger /login vers la racine de l'application
+RewriteRule ^login(\.php)?$ /campuscoud.com/securite/ [R=301,L]
+
 # Si le fichier ou dossier existe réellement, ne pas réécrire
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d

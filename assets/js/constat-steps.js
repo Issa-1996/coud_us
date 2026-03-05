@@ -259,7 +259,7 @@ function addTemoignage() {
                     </select>
                 </div>
                 <div class="col-md-2 mb-2">
-                    <input type="tel" class="form-control" name="temoignage_telephone_${temoignageCount}" placeholder="Téléphone">
+                    <input type="tel" class="form-control" name="temoignage_telephone_${temoignageCount}" placeholder="771234567" maxlength="9" pattern="(7[0-9]{8}|33[0-9]{7})" title="Numéro sénégalais: mobile (7X XXX XX XX) ou fixe (33 XXX XX XX)">
                 </div>
                 <div class="col-md-1 mb-2">
                     <button type="button" class="btn btn-danger btn-sm" onclick="removeTemoignage(${temoignageCount})">
@@ -476,7 +476,7 @@ function addEditTemoignage() {
                     </select>
                 </div>
                 <div class="col-md-2 mb-2">
-                    <input type="tel" class="form-control" name="edit_temoignage_telephone_${editTemoignageCount}" placeholder="Téléphone">
+                    <input type="tel" class="form-control" name="edit_temoignage_telephone_${editTemoignageCount}" placeholder="771234567" maxlength="9" pattern="(7[0-9]{8}|33[0-9]{7})" title="Numéro sénégalais: mobile (7X XXX XX XX) ou fixe (33 XXX XX XX)">
                 </div>
                 <div class="col-md-1 mb-2">
                     <button type="button" class="btn btn-danger btn-sm" onclick="removeEditTemoignage(${editTemoignageCount})">

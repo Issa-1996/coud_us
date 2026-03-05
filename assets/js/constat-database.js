@@ -1,4 +1,4 @@
-// Variables globales
+﻿// Variables globales
 let currentPage = 1;
 let itemsPerPage = 10;
 let searchQuery = '';
@@ -1463,7 +1463,11 @@ function savePV() {
         showError('Veuillez remplir tous les champs obligatoires');
         return;
     }
-    
+    if (telephone && !/^(7[0-9]{8}|33[0-9]{7})$/.test(telephone)) {
+        showError('Le téléphone doit être un numéro sénégalais valide (ex: 771234567 ou 331234567)');
+        return;
+    }
+
     // Préparer les données complètes
     const data = {
         action: 'create',
@@ -1931,7 +1935,7 @@ function generatePrintHTML(pvData) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PROCÈS-VERBAL DE CONSTAT - ${pvData.nom_prenom}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @page {
@@ -2257,3 +2261,10 @@ function generatePrintHTML(pvData) {
 </html>
     `;
 }
+
+// Bloquer la saisie de caractères non numériques dans tous les champs téléphone
+document.addEventListener('input', function(e) {
+    if (e.target.type === 'tel') {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    }
+});
